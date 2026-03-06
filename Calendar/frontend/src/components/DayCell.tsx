@@ -23,7 +23,7 @@ export const DayCell = ({ presence, onAdd }: DayCellProps) => {
           </span>
         </div>
       ) : (
-        <span className="text-base-content/20 text-3xl hover:text-base-content/50 transition-colors">+</span>
+        <span className="text-base-content/20 text-3xl hover:text-base-content/50 transition-colors"></span>
       )}
     </div>
   );

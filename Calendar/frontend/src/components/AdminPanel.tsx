@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import EmojiPicker from 'emoji-picker-react'; // 👈 1. Importamos el selector
+ // 👈 1. Importamos el selector
 
 export default function AdminPanel() {
   // ==========================================
