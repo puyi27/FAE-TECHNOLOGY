@@ -28,26 +28,27 @@ export default function App() {
   };
 
   // --- CARGA DE DATOS DESDE API ---
-  const loadData = async () => {
-    try {
-      const [usersRes, categoriesRes] = await Promise.all([
-        fetch('http://localhost:4000/api/users'),
-        fetch('http://localhost:4000/api/categories')
-      ]);
-      const usersData = await usersRes.json();
-      const categoriesData = await categoriesRes.json();
+const loadData = async () => {
+  try {
+    const [usersRes, categoriesRes] = await Promise.all([
+      fetch('http://localhost:4000/api/users'),
+      fetch('http://localhost:4000/api/categories')
+    ]);
+    const usersData = await usersRes.json();
+    const categoriesData = await categoriesRes.json();
 
-      const usersWithAvatars = usersData.map((u: any) => ({
-        ...u,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(u.full_name || u.alias)}&background=random`
-      }));
+    const usersProcessed = usersData.map((u: any) => ({
+      ...u,
+      // 🚀 Si de Postgres viene null, lo convertimos en un string de avatar por defecto
+      avatar: u.avatar || `https://ui-avatars.com/api/?name=${u.alias}`
+    }));
 
-      setUsers(usersWithAvatars);
-      setCategories(categoriesData);
-    } catch (error) {
-      console.error("Error cargando datos:", error);
-    }
-  };
+    setUsers(usersProcessed);
+    setCategories(categoriesData);
+  } catch (error) {
+    console.error("Error cargando datos:", error);
+  }
+};
 
   useEffect(() => { loadData(); }, []);
 

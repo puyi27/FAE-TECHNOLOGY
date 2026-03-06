@@ -21,9 +21,9 @@ export interface User {
   full_name: string;
   description?: string | null;
   work: string;
-  email?: string | null;
-  role?: string | null;
+  email: string | null;
+  role: string | null;
   phoneNumber?: string | null;
-  avatar?: string | null;
+  avatar: string | null | undefined;
   presences: Presence[];
 }

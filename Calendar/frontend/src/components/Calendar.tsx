@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
@@ -5,84 +6,162 @@ import 'dayjs/locale/it';
 import { DayCell } from './DayCell';
 import { type User } from '../types';
 
-// Configuración para que la semana empiece en Lunes (IT)
 dayjs.extend(isoWeek);
 dayjs.locale('it');
 
-interface CalendarProps {
-  users: User[];
-}
+// Definimos el tipo de ordenación
+type SortConfig = { key: 'alias' | 'work'; direction: 'asc' | 'desc' };
 
-export const Calendar = ({ users }: CalendarProps) => {
+export const Calendar = ({ users }: { users: User[] }) => {
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
   
-  // Forzamos el inicio en Lunes usando isoWeek
+  // --- ESTADO DE ORDENACIÓN INTEGRADA ---
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'alias', direction: 'asc' });
+
   const startOfWeek = dayjs().startOf('isoWeek');
   const weekDays = Array.from({ length: 7 }, (_, i) => startOfWeek.add(i, 'day'));
 
-  return (
-    <div className="overflow-x-auto rounded-3xl border border-base-300 shadow-xl bg-base-100">
-      {/* 1. Añadimos table-fixed para que respete los anchos de columna */}
-      <table className="table table-fixed w-full border-collapse">
-        <thead>
-          <tr className="bg-base-200/50 text-base-content/70">
-            {/* 2. Definimos un ancho fijo para la columna de Miembros (ej: 280px) */}
-            <th className="p-6 text-left text-sm font-black uppercase tracking-widest border-r border-base-300 w-[280px]">
-              Membri
-            </th>
-            
-            {/* 3. Las columnas de los días NO tienen ancho definido, así se reparten el 100% restante por igual */}
-            {weekDays.map(day => (
-              <th key={day.toString()} className="p-4 text-center border-r border-base-200">
-                <div className="text-[10px] opacity-50 uppercase font-black">{day.format('ddd')}</div>
-                <div className="text-xl font-black">{day.format('DD')}</div>
+  // --- LÓGICA DE FILTRADO Y ORDENACIÓN ---
+  const sortedUsers = useMemo(() => {
+    let items = [...users].filter(u => 
+      u.alias.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (u.work && u.work.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+
+    items.sort((a, b) => {
+      const valA = (a[sortConfig.key] || '').toLowerCase();
+      const valB = (b[sortConfig.key] || '').toLowerCase();
+      
+      if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return items;
+  }, [users, searchTerm, sortConfig]);
+
+  // Función para cambiar el orden al hacer clic
+  const requestSort = (key: 'alias' | 'work') => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+return (
+    <div className="space-y-4 animate-fade-in">
+      {/* Búsqueda con mejor visibilidad */}
+      <div className="flex justify-end px-4">
+        <div className="relative w-72 group">
+          <input 
+            type="text" 
+            placeholder="Cerca un collega..." 
+            className="input input-sm input-bordered w-full rounded-2xl bg-base-100 pl-10 focus:ring-4 focus:ring-primary/20 transition-all border-base-300 text-base-content placeholder:text-base-content/50"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <span className="absolute left-4 top-2 text-base-content/60 text-xs font-bold">🔍</span>
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-[2.5rem] border-2 border-base-300 bg-base-100 shadow-2xl">
+        <table className="table table-fixed w-full border-separate border-spacing-0">
+          <thead>
+            <tr className="bg-base-200 select-none">
+              
+              {/* CABECERA CON CONTRASTE ALTO */}
+              <th className="p-0 border-r-2 border-base-300 w-[300px] sticky left-0 z-20 bg-base-200 shadow-md">
+                <div className="flex flex-col h-full divide-y divide-base-300">
+                   <div 
+                    onClick={() => requestSort('alias')}
+                    className={`p-5 cursor-pointer hover:bg-primary/5 transition-all flex items-center justify-between group/sort ${sortConfig.key === 'alias' ? 'bg-primary/10' : ''}`}
+                   >
+                     <div>
+                        {/* Subido contraste de 'Dipendente' */}
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block mb-1">Dipendente</span>
+                        <div className={`text-lg font-black tracking-tighter transition-colors ${sortConfig.key === 'alias' ? 'text-primary' : 'text-base-content'}`}>Anagrafica</div>
+                     </div>
+                     <div className={`transition-all duration-500 transform ${sortConfig.key === 'alias' ? 'opacity-100 scale-110' : 'opacity-0 scale-50'}`}>
+                       <span className="inline-block font-black text-xl text-primary transform transition-transform duration-500" style={{ transform: sortConfig.direction === 'desc' ? 'rotate(180deg)' : 'rotate(0deg)' }}>↑</span>
+                     </div>
+                   </div>
+                   
+                   <div 
+                    onClick={() => requestSort('work')}
+                    className={`px-5 py-4 cursor-pointer hover:bg-primary/5 transition-all flex items-center justify-between group/sort ${sortConfig.key === 'work' ? 'bg-primary/10' : ''}`}
+                   >
+                     {/* Subido contraste de 'Ordina per Ruolo' */}
+                     <span className={`text-[11px] font-black uppercase tracking-widest transition-all ${sortConfig.key === 'work' ? 'text-primary' : 'text-base-content/70'}`}>Ordina per Ruolo</span>
+                     <div className={`transition-all duration-500 transform ${sortConfig.key === 'work' ? 'opacity-100 scale-110' : 'opacity-0 scale-50'}`}>
+                        <span className="inline-block font-black text-primary transform transition-transform duration-500" style={{ transform: sortConfig.direction === 'desc' ? 'rotate(180deg)' : 'rotate(0deg)' }}>↑</span>
+                     </div>
+                   </div>
+                </div>
               </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user, index) => (
-            <tr
-              key={user.id_user}
-              className="stagger-item border-b border-base-200 h-24 hover:bg-base-200/60 transition-colors group/row"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <td 
-                className="p-4 flex items-center gap-4 border-r border-base-300 bg-base-200/30 cursor-pointer hover:bg-base-300/80 transition-colors group"
-                onClick={() => navigate(`/profile/${user.id_user}`)}
-              >
-                <div className="avatar transition-transform group-hover:scale-105 flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full border-2 border-base-100 shadow-sm ring-1 ring-base-300">
-                    <img src={user.avatar || `https://ui-avatars.com/api/?name=${user.alias}`} alt={user.alias} />
-                  </div>
-                </div>
-                <div className="overflow-hidden">
-                  <div className="font-bold text-base-content text-lg truncate group-hover:text-primary transition-colors">
-                    {user.alias}
-                  </div>
-                  <div className="text-[10px] text-base-content/60 font-semibold uppercase tracking-tighter truncate">
-                    {user.work || 'Dipendente'}
-                  </div>
-                </div>
-              </td>
 
-              {weekDays.map(day => {
-                const dateStr = day.format('YYYY-MM-DD');
-                const presence = user.presences.find(p => p.date === dateStr);
-                const isWeekend = day.isoWeekday() >= 6;
-
-                return (
-                  <td key={dateStr} className={`p-0 border-r border-base-200 relative ${isWeekend ? 'bg-base-200/50' : 'bg-base-100'}`}>
-                    <div className="w-full h-full flex items-center justify-center min-h-[96px] pointer-events-none">
-                      <DayCell presence={presence} onAdd={() => {}} />
-                    </div>
-                  </td>
-                );
-              })}
+              {/* DÍAS: Textos mucho más legibles */}
+              {weekDays.map(day => (
+                <th key={day.toString()} className={`p-5 text-center border-r border-base-300 transition-colors ${day.isSame(dayjs(), 'day') ? 'bg-primary/10 border-b-4 border-b-primary' : ''}`}>
+                  {/* Texto de día de la semana más oscuro */}
+                  <div className="text-[11px] uppercase font-black text-base-content/60 tracking-[0.15em] mb-1">{day.format('ddd')}</div>
+                  <div className={`text-2xl font-black tracking-tighter ${day.isSame(dayjs(), 'day') ? 'text-primary' : 'text-base-content'}`}>{day.format('DD')}</div>
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          
+          <tbody className="divide-y-2 divide-base-300">
+            {sortedUsers.map((user, index) => (
+              <tr 
+                key={user.id_user} 
+                className={`group/row transition-all duration-300 hover:bg-primary/5 ${index % 2 !== 0 ? 'bg-base-200/40' : 'bg-base-100'}`}
+              >
+                {/* CELDA NOMBRE */}
+                <td 
+                  className="p-6 flex items-center gap-5 border-r-2 border-base-300 bg-inherit cursor-pointer group/cell relative z-10"
+                  onClick={() => navigate(`/profile/${user.id_user}`)}
+                >
+                  <div className="absolute left-0 top-0 w-1.5 h-0 bg-primary transition-all duration-500 group-hover/row:h-full" />
+                  <div className="avatar flex-shrink-0 transition-all duration-500 group-hover/row:scale-110">
+                    <div className="w-14 h-14 rounded-2xl border-2 border-base-300 shadow-md overflow-hidden">
+                      <img src={user.avatar ?? undefined} alt={user.alias} className="object-cover" />
+                    </div>
+                  </div>
+                  <div className="overflow-hidden">
+                    {/* Texto Nombre: Negro/Blanco puro según tema */}
+                    <div className="font-black text-base-content text-lg truncate group-hover/row:text-primary transition-colors uppercase tracking-tight">{user.alias}</div>
+                    {/* Texto Rol: Gris oscuro legible */}
+                    <div className="text-[10px] text-base-content/80 font-black uppercase tracking-widest bg-base-300 px-2 py-1 rounded-md inline-block mt-1">{user.work || 'TEAM MEMBER'}</div>
+                  </div>
+                </td>
+
+                {/* CELDAS DÍAS */}
+                {weekDays.map(day => {
+                  const dateStr = day.format('YYYY-MM-DD');
+                  const presence = user.presences.find(p => p.date === dateStr);
+                  const isWeekend = day.isoWeekday() >= 6;
+                  const isToday = day.isSame(dayjs(), 'day');
+
+                  return (
+                    <td 
+                      key={dateStr} 
+                      className={`p-0 border-r border-base-300 relative transition-all duration-300 
+                        ${isWeekend ? 'bg-base-200/60' : ''} 
+                        ${isToday ? 'bg-primary/5' : ''}`}
+                    >
+                      <div className="w-full h-full flex items-center justify-center min-h-[110px] pointer-events-none group-hover/row:scale-110 transition-all">
+                        <DayCell presence={presence} onAdd={() => {}} />
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
