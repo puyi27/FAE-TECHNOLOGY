@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
- // 👈 1. Importamos el selector
 
 export default function AdminPanel() {
   // ==========================================
@@ -21,7 +20,6 @@ export default function AdminPanel() {
   });
 
   const [loading, setLoading] = useState(true);
-
 
   // ==========================================
   // CARGA DE DATOS (FETCH)
@@ -153,7 +151,7 @@ export default function AdminPanel() {
   return (
     <div className="animate-fade-in pb-20">
       {/* ========================================== */}
-      {/* SECCIÓN 1: USUARIOS (Basado en tu dibujo)  */}
+      {/* SECCIÓN 1: USUARIOS                        */}
       {/* ========================================== */}
       <div className="flex justify-between items-end mb-6 border-b border-base-300 pb-4">
         <h2 className="text-3xl font-black tracking-tight text-base-content">USERS</h2>
@@ -166,7 +164,7 @@ export default function AdminPanel() {
         <table className="table table-zebra w-full">
           <thead className="bg-base-200/50 text-base-content/70 uppercase text-xs">
             <tr>
-              <th>ID</th>
+              <th className="w-16">Foto</th> {/* 👈 Cambiado de ID a Foto */}
               <th>Nome</th>
               <th>Telefono</th>
               <th>Ruolo</th>
@@ -176,7 +174,20 @@ export default function AdminPanel() {
           <tbody>
             {users.map((user, index) => (
               <tr key={user.id_user} className="stagger-item hover:bg-base-200/50 transition-colors duration-300" style={{ animationDelay: `${index * 50}ms` }}>
-                <td className="font-mono text-base-content/50 text-xs">{user.id_user}</td>
+                
+                {/* 👈 Nueva celda con el Avatar en lugar del ID */}
+                <td>
+                  <div className="avatar">
+                    <div className="w-10 h-10 rounded-full border border-base-300 bg-base-300 shadow-sm">
+                      <img 
+                        src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.alias || user.full_name)}&background=random`} 
+                        alt={user.alias} 
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+                </td>
+                
                 <td>
                   <div className="font-bold text-sm">{user.alias}</div>
                   <div className="text-xs opacity-70">{user.full_name}</div>
@@ -202,7 +213,7 @@ export default function AdminPanel() {
       </div>
 
       {/* ============================================== */}
-      {/* SECCIÓN 2: CATEGORÍAS (Basado en tu dibujo)    */}
+      {/* SECCIÓN 2: CATEGORÍAS                          */}
       {/* ============================================== */}
       <div className="flex justify-between items-end mb-6 border-b border-base-300 pb-4 mt-8">
         <h2 className="text-3xl font-black tracking-tight text-base-content">CATEGORIES</h2>
@@ -241,7 +252,7 @@ export default function AdminPanel() {
 
 
       {/* ========================================== */}
-      {/* MODAL: USUARIOS (Minimalista)                */}
+      {/* MODAL: USUARIOS                            */}
       {/* ========================================== */}
       <dialog className={`modal ${isUserModalOpen ? 'modal-open' : ''} modal-bottom sm:modal-middle z-50`}>
         <div className="modal-box bg-base-100 rounded-2xl p-6 md:p-8 max-w-md modal-smooth shadow-xl border border-base-200/50">
@@ -267,6 +278,7 @@ export default function AdminPanel() {
                 <input type="tel" placeholder="+39 333..." className="input input-bordered w-full bg-base-200/30 focus:bg-base-200 focus:border-primary transition-colors" value={userFormData.phoneNumber} onChange={e => setUserFormData({ ...userFormData, phoneNumber: e.target.value })} />
               </div>
             </div>
+            
             <div className="grid grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label pb-1"><span className="label-text text-base-content/70">Professione</span></label>
@@ -296,7 +308,7 @@ export default function AdminPanel() {
       </dialog>
 
       {/* ========================================== */}
-      {/* MODAL: CATEGORÍAS (Minimalista)              */}
+      {/* MODAL: CATEGORÍAS                          */}
       {/* ========================================== */}
       <dialog className={`modal ${isCategoryModalOpen ? 'modal-open' : ''} modal-bottom sm:modal-middle z-50`}>
         <div className="modal-box bg-base-100 rounded-2xl p-6 md:p-8 max-w-md modal-smooth shadow-xl border border-base-200/50">

@@ -19,11 +19,12 @@ export interface User {
   id_user: number;
   alias: string;
   full_name: string;
-  description?: string | null;
+  description?: string ;
   work: string;
   email: string | null;
   role: string | null;
   phoneNumber?: string | null;
   avatar: string | null | undefined;
+  status: string;
   presences: Presence[];
 }
