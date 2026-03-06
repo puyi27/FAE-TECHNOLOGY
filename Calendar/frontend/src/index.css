@@ -1,0 +1,62 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* 1. TRANSICIÓN DE TEMA REFINADA */
+/* En lugar de animar TODO, animamos solo las superficies principales para evitar el lag visual */
+html, 
+body, 
+.modal-box, 
+.bg-base-100 {
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 2. ANIMACIONES DE INTERFAZ (Física "Soft") */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    filter: blur(4px); /* Añadimos un pequeño desenfoque para elegancia */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Aplicación suave a las filas de la tabla y elementos */
+.stagger-item {
+  opacity: 0;
+  animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* 3. MODAL PREMIUM (Efecto Elástico) */
+@keyframes modalScale {
+  0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-smooth {
+  animation: modalScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  /* El cubic-bezier de arriba crea un efecto de rebote muy sutil y pro */
+}
+
+/* 4. MEJORA DE LOS BOTONES Y FILAS */
+.btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Efecto hover elegante en las filas de la tabla */
+tr.hover:hover {
+  background-color: oklch(var(--b2) / 0.6) !important;
+  transition: background-color 0.2s ease;
+}
+
+/* 5. EL TOQUE FINAL: View Transitions */
+/* Si usas la función document.startViewTransition en JS, esto hará un fundido de cine */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
