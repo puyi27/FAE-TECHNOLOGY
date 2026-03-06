@@ -86,6 +86,7 @@ const toggleTheme = () => {
 
 return (
     <BrowserRouter>
+    <p>Hola esto simplemente es una edición para saber como va lo de las ramas en git</p>
       <div className="min-h-screen bg-base-200 text-base-content transition-colors duration-300">
 
         <Navbar theme={theme} toggleTheme={toggleTheme} />
