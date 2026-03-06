@@ -16,10 +16,15 @@ export const Calendar = ({ users }: { users: User[] }) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   
+  // --- NUEVO: ESTADO DE LA FECHA PARA NAVEGAR ---
+  const [currentDate, setCurrentDate] = useState(dayjs());
+  
   // --- ESTADO DE ORDENACIÓN INTEGRADA ---
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'alias', direction: 'asc' });
 
-  const startOfWeek = dayjs().startOf('isoWeek');
+  // --- LÓGICA DE DÍAS (Depende de currentDate, de Lunes a Domingo) ---
+  const startOfWeek = currentDate.startOf('isoWeek');
+  const endOfWeek = currentDate.endOf('isoWeek');
   const weekDays = Array.from({ length: 7 }, (_, i) => startOfWeek.add(i, 'day'));
 
   // --- LÓGICA DE FILTRADO Y ORDENACIÓN ---
@@ -50,22 +55,58 @@ export const Calendar = ({ users }: { users: User[] }) => {
     setSortConfig({ key, direction });
   };
 
-return (
-    <div className="space-y-4 animate-fade-in">
-      {/* Búsqueda con mejor visibilidad */}
-      <div className="flex justify-end px-4">
-        <div className="relative w-72 group">
-          <input 
-            type="text" 
-            placeholder="Cerca un collega..." 
-            className="input input-sm input-bordered w-full rounded-2xl bg-base-100 pl-10 focus:ring-4 focus:ring-primary/20 transition-all border-base-300 text-base-content placeholder:text-base-content/50"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <span className="absolute left-4 top-2 text-base-content/60 text-xs font-bold">🔍</span>
+  return (
+    <div className="space-y-6 animate-fade-in">
+      
+      {/* --- CABECERA: Buscador Izquierda, Navegación Derecha --- */}
+      <div className="flex flex-col lg:flex-row justify-between items-center px-4 gap-4">
+        
+        {/* IZQUIERDA: Tu Buscador intacto */}
+        <div className="w-full lg:w-auto flex justify-start">
+          <div className="relative w-full lg:w-72 group">
+            <input 
+              type="text" 
+              placeholder="Cerca un collega..." 
+              className="input input-sm input-bordered w-full rounded-2xl bg-base-100 pl-10 focus:ring-4 focus:ring-primary/20 transition-all border-base-300 text-base-content placeholder:text-base-content/50"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <span className="absolute left-4 top-2 text-base-content/60 text-xs font-bold">🔍</span>
+          </div>
+        </div>
+
+        {/* DERECHA: Navegador de Fechas Estilo ProfilePage */}
+        <div className="flex items-center gap-6 w-full lg:w-auto justify-between lg:justify-end">
+          <div className="text-right hidden sm:block">
+            <h3 className="text-xl font-black capitalize tracking-tight text-base-content whitespace-nowrap">
+              {startOfWeek.format('DD MMM')} - {endOfWeek.format('DD MMM YYYY')}
+            </h3>
+          </div>
+          
+          <div className="join bg-base-100/50 shadow-sm border border-base-300 rounded-2xl flex-shrink-0">
+            <button 
+              onClick={() => setCurrentDate(c => c.subtract(1, 'week'))} 
+              className="btn btn-sm btn-ghost join-item px-4 text-lg hover:bg-primary/10 hover:text-primary transition-all"
+            >
+              ←
+            </button>
+            <button 
+              onClick={() => setCurrentDate(dayjs())} 
+              className="btn btn-sm btn-ghost join-item px-6 font-black uppercase text-xs tracking-widest"
+            >
+              Oggi
+            </button>
+            <button 
+              onClick={() => setCurrentDate(c => c.add(1, 'week'))} 
+              className="btn btn-sm btn-ghost join-item px-4 text-lg hover:bg-primary/10 hover:text-primary transition-all"
+            >
+              →
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* --- TU TABLA INTACTA --- */}
       <div className="overflow-hidden rounded-[2.5rem] border-2 border-base-300 bg-base-100 shadow-2xl">
         <table className="table table-fixed w-full border-separate border-spacing-0">
           <thead>
