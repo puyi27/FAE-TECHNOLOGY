@@ -166,8 +166,10 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Calendar users={users} />} />
             
-            {/* Si quisieras proteger el admin, podrías hacer un chequeo de currentUser.role aquí */}
-            <Route path="/admin" element={<AdminPanel />} />
+            {/* 🔒 PROTECCIÓN DE RUTA: Solo los ADMIN pueden acceder aquí */}
+            {currentUser.role === 'admin' || currentUser.role === 'ADMIN' ? (
+              <Route path="/admin" element={<AdminPanel />} />
+            ) : null}
             
             <Route 
               path="/profile/:id_user" 
@@ -176,6 +178,7 @@ export default function App() {
                   users={users} 
                   onAddPresence={onAddPresence} 
                   onUpdateUser={handleUpdateUser} 
+                  currentUser={currentUser} /* <-- Pásale el currentUser si lo necesitas ahí */
                 />
               } 
             />

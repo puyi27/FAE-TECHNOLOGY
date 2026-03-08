@@ -1,16 +1,18 @@
 import { Link, useLocation } from 'react-router-dom';
-import { type User } from '../types'; // Asegúrate de que la ruta a types.ts sea la correcta
+import { type User } from '../types'; 
 
 interface NavbarProps {
   theme: string;
   toggleTheme: () => void;
-  // Hacemos que sean opcionales (?) para que no te dé error si aún no hay sesión
   currentUser?: User | null; 
   onLogout?: () => void;
 }
 
 export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: NavbarProps) {
   const location = useLocation();
+
+  // Función auxiliar para saber si el usuario es admin
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'ADMIN';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-base-200/60 bg-base-100/80 backdrop-blur-md transition-colors duration-300">
@@ -31,7 +33,7 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
         {/* --- NAVEGACIÓN Y CONTROLES --- */}
         <div className="flex-none flex items-center gap-1 sm:gap-2">
           
-          {/* Enlace: Calendario (Oculto en móvil, se mueve al menú del usuario) */}
+          {/* Enlace: Calendario (Oculto en móvil) */}
           <Link 
             to="/" 
             className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold transition-all ${
@@ -43,17 +45,19 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
             <span className="text-lg opacity-80">📅</span> Calendario
           </Link>
 
-          {/* Enlace: Admin */}
-          <Link 
-            to="/admin" 
-            className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold transition-all ${
-              location.pathname === '/admin' 
-                ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20' 
-                : 'text-base-content/60 hover:bg-base-200/50 hover:text-base-content'
-            }`}
-          >
-            <span className="text-lg opacity-80">⚙️</span> Admin
-          </Link>
+          {/* 🔒 Enlace: Admin (SOLO VISIBLE PARA ADMIN) */}
+          {isAdmin && (
+            <Link 
+              to="/admin" 
+              className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold transition-all ${
+                location.pathname === '/admin' 
+                  ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20' 
+                  : 'text-base-content/60 hover:bg-base-200/50 hover:text-base-content'
+              }`}
+            >
+              <span className="text-lg opacity-80">⚙️</span> Admin
+            </Link>
+          )}
           
           {/* Separador vertical */}
           <div className="w-[2px] h-8 bg-base-300/60 mx-1 sm:mx-2 hidden sm:block rounded-full"></div>
@@ -65,7 +69,7 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
             <div className="swap-off text-xl md:text-2xl drop-shadow-sm">☀️</div>
           </label>
 
-          {/* --- MENÚ DESPLEGABLE DEL USUARIO (Solo si hay alguien logueado) --- */}
+          {/* --- MENÚ DESPLEGABLE DEL USUARIO --- */}
           {currentUser && (
             <div className="dropdown dropdown-end ml-1">
               {/* Botón del Avatar */}
@@ -102,10 +106,9 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
                   </div>
                 </div>
                 
-<li>
+                <li>
                   <Link 
                     to={`/profile/${currentUser.id_user}`} 
-                    // 👇 AÑADE ESTO: Quita el foco y cierra el menú al instante
                     onClick={() => {
                       const elem = document.activeElement as HTMLElement;
                       if (elem) elem.blur();
@@ -124,23 +127,25 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
                   <li>
                     <Link 
                       to="/" 
-                      // 👇 AQUÍ TAMBIÉN
                       onClick={() => (document.activeElement as HTMLElement)?.blur()}
                       className="py-3 font-bold hover:bg-base-200/80 rounded-xl transition-colors"
                     >
                       <span className="text-lg opacity-50 mr-2">📅</span> Calendario
                     </Link>
                   </li>
-                  <li>
-                    <Link 
-                      to="/admin" 
-                      // 👇 Y AQUÍ
-                      onClick={() => (document.activeElement as HTMLElement)?.blur()}
-                      className="py-3 font-bold hover:bg-base-200/80 rounded-xl transition-colors text-primary"
-                    >
-                      <span className="text-lg opacity-50 mr-2">⚙️</span> Admin
-                    </Link>
-                  </li>
+                  
+                  {/* 🔒 Enlace: Admin móvil (SOLO VISIBLE PARA ADMIN) */}
+                  {isAdmin && (
+                    <li>
+                      <Link 
+                        to="/admin" 
+                        onClick={() => (document.activeElement as HTMLElement)?.blur()}
+                        className="py-3 font-bold hover:bg-base-200/80 rounded-xl transition-colors text-primary"
+                      >
+                        <span className="text-lg opacity-50 mr-2">⚙️</span> Admin
+                      </Link>
+                    </li>
+                  )}
                 </div>
 
                 <div className="divider my-1 opacity-50"></div>

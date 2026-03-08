@@ -13,6 +13,7 @@ interface ProfilePageProps {
   onAddPresence: (userId: number, date: string) => void;
   // Añadimos onUpdateUser para que puedas guardar los datos en App.tsx cuando conectes el backend
   onUpdateUser?: (updatedUser: any) => void;
+  currentUser: User;
 }
 
 export const ProfilePage = ({ users, onAddPresence, onUpdateUser }: ProfilePageProps) => {
