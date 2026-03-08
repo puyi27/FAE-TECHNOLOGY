@@ -5,7 +5,7 @@ interface LoginPageProps {
 }
 
 export const LoginPage = ({ onLogin }: LoginPageProps) => {
-  const [alias, setAlias] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -16,20 +16,17 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
     setIsLoading(true);
 
     try {
-      // 🚀 LLAMADA REAL AL BACKEND
       const response = await fetch('http://localhost:4000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ alias, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Si el login es correcto, pasamos el usuario y el token al App.tsx
         onLogin(data.user, data.token);
       } else {
-        // Mostramos el error real que manda el backend (ej: "Password errata")
         setError(data.error || 'Credenziali non valide');
       }
     } catch (err) {
@@ -68,18 +65,21 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
           )}
 
           <div className="space-y-4">
+            
+            {/* Input Email */}
             <div className="relative group">
-              <span className="absolute left-5 top-4 opacity-40 group-focus-within:text-primary group-focus-within:opacity-100 transition-all">👤</span>
+              <span className="absolute left-5 top-4 opacity-40 group-focus-within:text-primary group-focus-within:opacity-100 transition-all">✉️</span>
               <input 
-                type="text" 
-                placeholder="Nome utente o Alias" 
+                type="email" 
+                placeholder="mario.rossi@fae.technology" 
                 className="input input-lg w-full bg-base-200/50 border-2 border-base-300 rounded-2xl pl-14 focus:ring-4 focus:ring-primary/10 text-base-content font-bold"
-                value={alias}
-                onChange={(e) => setAlias(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
 
+            {/* Input Password */}
             <div className="relative group">
               <span className="absolute left-5 top-4 opacity-40 group-focus-within:text-primary group-focus-within:opacity-100 transition-all">🔑</span>
               <input 
@@ -91,7 +91,8 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
                 required
               />
             </div>
-          </div>
+            
+          </div> {/* Aquí es donde faltaba el </div> en tu código */}
 
           <button 
             type="submit" 
