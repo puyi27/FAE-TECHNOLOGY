@@ -5,6 +5,7 @@ import AdminPanel from './components/AdminPanel';
 import Navbar from './components/Navbar';
 import { type User, type Category } from './types';
 import { ProfilePage } from './components/ProfilePage';
+import { LoginPage } from './components/LoginPage';
 
 export default function App() {
   const [users, setUsers] = useState<User[]>([]);
@@ -14,8 +15,12 @@ export default function App() {
   // 🌓 ESTADO DEL TEMA (Local Storage)
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   
-  // 🚀 ESTADOS DE SESIÓN (Para el Navbar y permisos)
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  // 🚀 ESTADOS DE SESIÓN REALES (Leen del LocalStorage al arrancar)
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem('fae_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  const [token, setToken] = useState<string | null>(localStorage.getItem('fae_token'));
 
   // Aplicar tema y guardar en localStorage
   useEffect(() => {
@@ -34,7 +39,7 @@ export default function App() {
     });
   };
 
-  // 🚀 CARGA DE DATOS (Arreglada para no borrar los avatares reales)
+  // 🚀 CARGA DE DATOS 
   const loadData = async () => {
     try {
       const [usersRes, categoriesRes] = await Promise.all([
@@ -59,16 +64,19 @@ export default function App() {
 
   useEffect(() => { loadData(); }, []);
 
-  // 🚀 SIMULACIÓN DE LOGIN (Autologin con el usuario ID 1 para pruebas)
-  useEffect(() => {
-    if (users.length > 0 && !currentUser) {
-      const mainUser = users.find(u => u.id_user === 1) || users[0];
-      setCurrentUser(mainUser);
-    }
-  }, [users]);
+  // 🚀 FUNCIONES DE LOGIN Y LOGOUT REALES
+  const handleLogin = (user: User, jwtToken: string) => {
+    setCurrentUser(user);
+    setToken(jwtToken);
+    localStorage.setItem('fae_user', JSON.stringify(user));
+    localStorage.setItem('fae_token', jwtToken);
+  };
 
   const handleLogout = () => {
     setCurrentUser(null);
+    setToken(null);
+    localStorage.removeItem('fae_user');
+    localStorage.removeItem('fae_token');
   };
 
   // --- FUNCIONES DE PRESENCIAS ---
@@ -102,7 +110,7 @@ export default function App() {
     ? users.find(u => u.id_user === modalData.id_user)?.presences.find(p => p.date === modalData.date)
     : null;
 
-  // 🚀 NUEVA FUNCIÓN: GUARDAR EL PERFIL EN LA BASE DE DATOS
+  // 🚀 FUNCIÓN: GUARDAR EL PERFIL EN LA BASE DE DATOS
   const handleUpdateUser = async (updatedData: any) => {
     try {
       const response = await fetch(`http://localhost:4000/api/users/${updatedData.id_user}`, {
@@ -124,7 +132,10 @@ export default function App() {
         
         // Si el usuario editado es el mismo que está logueado, actualizar el Navbar
         if (currentUser?.id_user === updatedData.id_user) {
-          setCurrentUser(prev => prev ? { ...prev, ...updatedData } : null);
+          const newUserState = { ...currentUser, ...updatedData };
+          setCurrentUser(newUserState);
+          // Actualizamos también la memoria para no perder los cambios al refrescar
+          localStorage.setItem('fae_user', JSON.stringify(newUserState));
         }
       } else {
         console.error("Error al guardar en el servidor");
@@ -134,6 +145,12 @@ export default function App() {
     }
   };
 
+  // 🔒 EL CANDADO: Si no hay sesión iniciada, solo renderiza la pantalla de Login
+  if (!currentUser || !token) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  // SI HAY SESIÓN, MUESTRA LA APLICACIÓN:
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-base-200 text-base-content transition-colors duration-300">
@@ -148,9 +165,10 @@ export default function App() {
         <main className="max-w-7xl mx-auto p-4 md:p-8">
           <Routes>
             <Route path="/" element={<Calendar users={users} />} />
+            
+            {/* Si quisieras proteger el admin, podrías hacer un chequeo de currentUser.role aquí */}
             <Route path="/admin" element={<AdminPanel />} />
             
-            {/* 🚀 Pasamos onUpdateUser a la página de perfil */}
             <Route 
               path="/profile/:id_user" 
               element={

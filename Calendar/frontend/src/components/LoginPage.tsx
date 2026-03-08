@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 interface LoginPageProps {
-  onLogin: (user: any) => void;
+  onLogin: (user: any, token: string) => void;
 }
 
 export const LoginPage = ({ onLogin }: LoginPageProps) => {
-  const navigate = useNavigate();
   const [alias, setAlias] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -18,28 +16,24 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
     setIsLoading(true);
 
     try {
-      // 🚀 AQUÍ IRÍA TU LLAMADA REAL AL BACKEND:
-      // const res = await fetch('http://localhost:4000/api/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ alias, password }),
-      // });
-      // const data = await res.json();
-      // if (!res.ok) throw new Error(data.message || 'Credenziali non valide');
-      
-      // Simulación de carga para el ejemplo
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // 🚀 LLAMADA REAL AL BACKEND
+      const response = await fetch('http://localhost:4000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alias, password }),
+      });
 
-      // Lógica simulada: Si hay texto, entra (Cámbialo por la validación de tu API)
-      if (alias && password) {
-        const fakeUserData = { id_user: 1, alias: alias, token: 'fake-jwt-token' };
-        onLogin(fakeUserData);
-        navigate('/'); // Redirige al calendario principal
+      const data = await response.json();
+
+      if (response.ok) {
+        // Si el login es correcto, pasamos el usuario y el token al App.tsx
+        onLogin(data.user, data.token);
       } else {
-        throw new Error('Inserisci alias e password');
+        // Mostramos el error real que manda el backend (ej: "Password errata")
+        setError(data.error || 'Credenziali non valide');
       }
-    } catch (err: any) {
-      setError(err.message || "Errore durante l'accesso");
+    } catch (err) {
+      setError("Impossibile connettersi al server. Riprova più tardi.");
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +62,7 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="bg-error/10 border border-error/20 text-error text-sm font-bold p-4 rounded-2xl text-center">
+            <div className="bg-error/10 border border-error/20 text-error text-sm font-bold p-4 rounded-2xl text-center animate-fade-in">
               {error}
             </div>
           )}
