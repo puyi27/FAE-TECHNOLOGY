@@ -11,18 +11,16 @@ dayjs.locale('it');
 interface ProfilePageProps {
   users: User[];
   onAddPresence: (userId: number, date: string) => void;
-  // Añadimos onUpdateUser para que puedas guardar los datos en App.tsx cuando conectes el backend
   onUpdateUser?: (updatedUser: any) => void;
-  currentUser: User;
+  currentUser: User; // 👈 Aquí recibimos el usuario real
 }
 
-export const ProfilePage = ({ users, onAddPresence, onUpdateUser }: ProfilePageProps) => {
+export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }: ProfilePageProps) => {
   const { id_user } = useParams();
   const user = users.find(u => u.id_user === Number(id_user));
 
-  // Usuario logueado (Simulado)
-  const MY_USER_ID = 1;
-  const isMyProfile = user?.id_user === MY_USER_ID;
+  // 👇 ADIÓS SIMULADOR: Ahora verificamos con el usuario real logueado
+  const isMyProfile = user?.id_user === currentUser.id_user;
 
   // --- ESTADOS ORIGINALES ---
   const [currentDate, setCurrentDate] = useState(dayjs());
@@ -91,7 +89,6 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser }: ProfilePageP
           {/* Botón de Editar (Solo si es tu perfil) */}
           {isMyProfile && (
             <button
-              // 👇 ESTE ES EL CAMBIO CLAVE: Llenamos el formulario antes de abrir el modal
               onClick={() => {
                 setFormData({
                   alias: user?.alias || '',
@@ -117,7 +114,7 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser }: ProfilePageP
             </div>
           </div>
 
-          {/* Indicador visual de estado (Solo se ve si configuras el status) */}
+          {/* Indicador visual de estado */}
           {user.status && (
             <div className="absolute -bottom-2 -right-2 bg-base-100 rounded-full border-4 border-base-100 flex items-center justify-center shadow-lg px-1.5 py-0.5 z-10">
               <span className="text-sm" title={user.status}>
@@ -159,7 +156,7 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser }: ProfilePageP
         </div>
       </div>
 
-      {/* --- CALENDAR GRID: High-End Design --- */}
+      {/* --- CALENDAR GRID --- */}
       <div className="bg-base-100/30 backdrop-blur-md rounded-[3rem] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.1)] border border-base-300 overflow-hidden">
         {/* Day Labels */}
         <div className="grid grid-cols-7 bg-base-200/60 border-b border-base-300">
@@ -230,7 +227,7 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser }: ProfilePageP
         </div>
       </div>
 
-      {/* --- MODAL DE EDICIÓN FLOTANTE (ESTILO PREMIUM) --- */}
+      {/* --- MODAL DE EDICIÓN FLOTANTE --- */}
       {isEditing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
           <div className="absolute inset-0 bg-base-300/60 backdrop-blur-md animate-fade-in" onClick={() => setIsEditing(false)}></div>

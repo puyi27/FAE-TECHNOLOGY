@@ -164,7 +164,16 @@ export default function App() {
 
         <main className="max-w-7xl mx-auto p-4 md:p-8">
           <Routes>
-            <Route path="/" element={<Calendar users={users} />} />
+            <Route 
+  path="/" 
+  element={
+    <Calendar 
+      users={users} 
+      onAddPresence={onAddPresence} 
+      currentUser={currentUser} 
+    />
+  } 
+/>
             
             {/* 🔒 PROTECCIÓN DE RUTA: Solo los ADMIN pueden acceder aquí */}
             {currentUser.role === 'admin' || currentUser.role === 'ADMIN' ? (
@@ -183,6 +192,7 @@ export default function App() {
               } 
             />
           </Routes>
+
         </main>
 
         {/* --- MODAL DE PRESENCIAS --- */}
