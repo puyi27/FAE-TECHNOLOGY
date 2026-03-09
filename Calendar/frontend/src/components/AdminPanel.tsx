@@ -155,8 +155,11 @@ export default function AdminPanel() {
       {/* ========================================== */}
       <div className="flex justify-between items-end mb-6 border-b border-base-300 pb-4">
         <h2 className="text-3xl font-black tracking-tight text-base-content">USERS</h2>
-        <button onClick={() => handleOpenUserDialog()} className="btn btn-primary btn-sm md:btn-md shadow-sm hover:shadow-md transition-all">
-          + USER
+<button onClick={() => handleOpenUserDialog()} className="group relative overflow-hidden rounded-xl bg-primary px-6 py-2 md:py-3 text-primary-content font-bold shadow-lg transition-all hover:scale-105 hover:shadow-primary/40">
+          <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-150%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(150%)]">
+            <div className="w-12 bg-white/30 blur-sm" />
+          </div>
+          <span className="relative z-10">+ USER</span>
         </button>
       </div>
 
@@ -217,8 +220,11 @@ export default function AdminPanel() {
       {/* ============================================== */}
       <div className="flex justify-between items-end mb-6 border-b border-base-300 pb-4 mt-8">
         <h2 className="text-3xl font-black tracking-tight text-base-content">CATEGORIES</h2>
-        <button onClick={() => handleOpenCategoryDialog()} className="btn btn-secondary btn-sm md:btn-md shadow-sm hover:shadow-md transition-all">
-          + CATEGORY
+<button onClick={() => handleOpenCategoryDialog()} className="group relative overflow-hidden rounded-xl bg-secondary px-6 py-2 md:py-3 text-secondary-content font-bold shadow-lg transition-all hover:scale-105 hover:shadow-secondary/40">
+          <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-150%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(150%)]">
+            <div className="w-12 bg-white/30 blur-sm" />
+          </div>
+          <span className="relative z-10">+ CATEGORY</span>
         </button>
       </div>
 

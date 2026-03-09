@@ -1,8 +1,30 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-/* 1. TRANSICIÓN DE TEMA REFINADA */
-/* En lugar de animar TODO, animamos solo las superficies principales para evitar el lag visual */
+/* =========================================================
+   🚀 1. TAILWIND ANIMATIONS (Configuración Tailwind v4) 
+   ========================================================= */
+@theme {
+  /* Declaramos las clases de utilidad para que Tailwind las reconozca */
+  --animate-bg-gradient: bg-gradient 3s ease infinite;
+  --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
+
+  /* Los fotogramas clave de las animaciones */
+  @keyframes bg-gradient {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  @keyframes fade-in-up {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* =========================================================
+   🎨 2. TUS ESTILOS PERSONALIZADOS Y MAGIC UI
+   ========================================================= */
+
+/* Transición de tema refinada */
 html, 
 body, 
 .modal-box, 
@@ -11,12 +33,12 @@ body,
               color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 2. ANIMACIONES DE INTERFAZ (Física "Soft") */
-@keyframes fadeInUp {
+/* Animaciones de Interfaz (Física "Soft") */
+@keyframes fadeInUpOriginal {
   from {
     opacity: 0;
     transform: translateY(20px) scale(0.98);
-    filter: blur(4px); /* Añadimos un pequeño desenfoque para elegancia */
+    filter: blur(4px); 
   }
   to {
     opacity: 1;
@@ -25,38 +47,51 @@ body,
   }
 }
 
-/* Aplicación suave a las filas de la tabla y elementos */
 .stagger-item {
   opacity: 0;
-  animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: fadeInUpOriginal 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* 3. MODAL PREMIUM (Efecto Elástico) */
+/* Modal Premium (Efecto Elástico) */
 @keyframes modalScale {
   0% { opacity: 0; transform: scale(0.9) translateY(10px); }
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
-
 .modal-smooth {
   animation: modalScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  /* El cubic-bezier de arriba crea un efecto de rebote muy sutil y pro */
 }
 
-/* 4. MEJORA DE LOS BOTONES Y FILAS */
+/* Mejora de botones y filas */
 .btn {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* Efecto hover elegante en las filas de la tabla */
 tr.hover:hover {
   background-color: oklch(var(--b2) / 0.6) !important;
   transition: background-color 0.2s ease;
 }
 
-/* 5. EL TOQUE FINAL: View Transitions */
-/* Si usas la función document.startViewTransition en JS, esto hará un fundido de cine */
+/* View Transitions */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 0.4s;
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animación RetroGrid (Magic UI) */
+@keyframes grid {
+  0% { transform: translateY(-50%); }
+  100% { transform: translateY(0); }
+}
+.animate-grid {
+  animation: grid 15s linear infinite;
+}
+
+/* Animación Shimmer Text (Magic UI) */
+@keyframes background-shine {
+  from { background-position: 0 0; }
+  to { background-position: -200% 0; }
+}
+.animate-background-shine {
+  animation: background-shine 3s linear infinite;
 }

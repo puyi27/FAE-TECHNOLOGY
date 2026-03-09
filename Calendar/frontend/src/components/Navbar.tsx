@@ -21,8 +21,12 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
         {/* --- LOGO --- */}
         <div className="flex-1">
           <Link to="/" className="group flex flex-col cursor-pointer w-max">
-            <h1 className="text-2xl md:text-3xl font-black text-base-content tracking-tighter">
-              FAE <span className="text-primary font-bold">TECHNOLOGY</span>
+            <h1 className="text-2xl md:text-3xl font-black tracking-tighter flex items-center gap-2">
+              <span className="text-base-content">FAE TECHNOLOGY</span> 
+              {/* ✨ MAGIC UI: Shimmer Text Effect */}
+              <span className="inline-flex animate-background-shine bg-[linear-gradient(110deg,rgba(var(--p),1),45%,#fff,55%,rgba(var(--p),1))] bg-[length:200%_100%] bg-clip-text text-transparent font-bold">
+                TECHNOLOGY
+              </span>
             </h1>
             <span className="text-[10px] md:text-xs text-base-content/50 font-semibold tracking-widest uppercase mt-0.5 group-hover:text-primary transition-colors">
               Gestione Presenze

@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import 'dayjs/locale/it';
 import { type User, type Presence } from '../types';
+import RetroGrid from './RetroGrid';
 
 dayjs.extend(isoWeek);
 dayjs.locale('it');
@@ -12,20 +13,17 @@ interface ProfilePageProps {
   users: User[];
   onAddPresence: (userId: number, date: string) => void;
   onUpdateUser?: (updatedUser: any) => void;
-  currentUser: User; // 👈 Aquí recibimos el usuario real
+  currentUser: User; 
 }
 
 export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }: ProfilePageProps) => {
   const { id_user } = useParams();
   const user = users.find(u => u.id_user === Number(id_user));
 
-  // 👇 ADIÓS SIMULADOR: Ahora verificamos con el usuario real logueado
   const isMyProfile = user?.id_user === currentUser.id_user;
 
-  // --- ESTADOS ORIGINALES ---
   const [currentDate, setCurrentDate] = useState(dayjs());
 
-  // --- NUEVOS ESTADOS PARA EL MODAL DE EDICIÓN ---
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     alias: user?.alias || '',
@@ -54,17 +52,12 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
   const days = Array.from({ length: daysInMonth }, (_, i) => startOfMonth.add(i, 'day'));
   const blanks = Array.from({ length: blanksCount }, (_, i) => i);
 
-  // --- FUNCIÓN PARA GUARDAR EDICIÓN ---
   const handleSaveProfile = () => {
-    // 1. Verificamos si el usuario ha dejado el link vacío
     const isEmpty = formData.avatar.trim() === '';
-
-    // 2. Si está vacío, le generamos las iniciales. Si no, usamos su link.
     const finalAvatar = isEmpty
       ? `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.alias)}&background=random`
       : formData.avatar;
 
-    // 3. Lo enviamos a App.tsx (y de ahí a la base de datos)
     if (onUpdateUser) {
       onUpdateUser({
         ...user,
@@ -73,20 +66,22 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
       });
     }
 
-    // 4. Actualizamos el formulario por si vuelve a abrir el modal
     setFormData(prev => ({ ...prev, avatar: finalAvatar }));
     setIsEditing(false);
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in relative">
+    <div className="max-w-6xl mx-auto px-4 py-8 relative">
 
       {/* --- HEADER: Glassmorphism Card --- */}
-      <div className="bg-base-100/40 backdrop-blur-xl rounded-[2.5rem] p-8 shadow-2xl border border-base-300 flex flex-wrap items-center gap-8 mb-12 relative overflow-hidden">
+      {/* 🚀 Animación de entrada: animate-fade-in-up */}
+      <div className="bg-base-100/40 backdrop-blur-xl rounded-[2.5rem] p-8 shadow-2xl border border-base-300 flex flex-wrap items-center gap-8 mb-12 relative overflow-hidden animate-fade-in-up">
+        
+        {/* ✨ MAGIC UI: Fondo de cuadrícula animada */}
+        <RetroGrid className="opacity-40 mix-blend-overlay" />
 
         {/* BOTONES SUPERIORES */}
-        <div className="absolute top-0 right-0 p-8 flex items-center gap-3">
-          {/* Botón de Editar (Solo si es tu perfil) */}
+        <div className="absolute top-0 right-0 p-8 flex items-center gap-3 z-20">
           {isMyProfile && (
             <button
               onClick={() => {
@@ -107,14 +102,13 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
         </div>
 
         {/* Avatar y Estado */}
-        <div className="relative group">
+        <div className="relative group z-10">
           <div className="avatar">
             <div className="w-28 h-28 rounded-[2rem] ring ring-primary ring-offset-base-100 ring-offset-4 shadow-2xl bg-base-300">
               <img src={user.avatar ?? `https://ui-avatars.com/api/?name=${user.alias}`} alt={user.alias} className="object-cover" />
             </div>
           </div>
 
-          {/* Indicador visual de estado */}
           {user.status && (
             <div className="absolute -bottom-2 -right-2 bg-base-100 rounded-full border-4 border-base-100 flex items-center justify-center shadow-lg px-1.5 py-0.5 z-10">
               <span className="text-sm" title={user.status}>
@@ -125,24 +119,27 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
         </div>
 
         {/* Info del Usuario */}
-        <div className="flex-1 min-w-[200px]">
+        <div className="flex-1 min-w-[200px] z-10">
           <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/60">Profilo Personale</span>
           <h2 className="text-5xl font-black tracking-tighter text-base-content mb-2">{user.full_name || user.alias}</h2>
 
-          {/* Descripción / Bio */}
           {user.description && (
             <p className="text-sm font-medium text-base-content/70 italic mb-3 max-w-md">"{user.description}"</p>
           )}
 
           <div className="flex gap-2">
-            <span className="badge badge-primary badge-outline font-bold px-4 py-3 uppercase text-[10px] tracking-widest">{user.work || 'Team Member'}</span>
+            {/* 🚀 TAILWIND ANIMATIONS: Gradiente animado (animate-bg-gradient) */}
+            <span className="badge border-none bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] animate-bg-gradient text-white font-bold px-4 py-3 uppercase text-[10px] tracking-widest shadow-lg">
+              {user.work || 'Team Member'}
+            </span>
             {isMyProfile && <span className="badge badge-secondary font-bold px-4 py-3 uppercase text-[10px] tracking-widest text-white shadow-sm">Tu</span>}
           </div>
         </div>
       </div>
 
       {/* --- NAVIGATION: Minimalist --- */}
-      <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 px-4 gap-6">
+      {/* 🚀 Animación de entrada escalonada (delay de 100ms) */}
+      <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 px-4 gap-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
         <div>
           <h3 className="text-4xl font-black capitalize tracking-tight text-base-content/90">
             {currentDate.format('MMMM')} <span className="text-primary tracking-tighter">{currentDate.format('YYYY')}</span>
@@ -157,8 +154,8 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
       </div>
 
       {/* --- CALENDAR GRID --- */}
-      <div className="bg-base-100/30 backdrop-blur-md rounded-[3rem] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.1)] border border-base-300 overflow-hidden">
-        {/* Day Labels */}
+      {/* 🚀 Animación de entrada escalonada (delay de 200ms) */}
+      <div className="bg-base-100/30 backdrop-blur-md rounded-[3rem] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.1)] border border-base-300 overflow-hidden animate-fade-in-up" style={{ animationDelay: '200ms' }}>
         <div className="grid grid-cols-7 bg-base-200/60 border-b border-base-300">
           {['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map(d => (
             <div key={d} className="py-6 text-center text-[11px] font-black opacity-30 uppercase tracking-[0.2em]">{d}</div>
@@ -166,12 +163,10 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
         </div>
 
         <div className="grid grid-cols-7">
-          {/* Empty Slots */}
           {blanks.map(b => (
             <div key={`blank-${b}`} className="min-h-[140px] bg-base-200/10 border-b border-r border-base-300/20"></div>
           ))}
 
-          {/* Actual Days */}
           {days.map(day => {
             const dateStr = day.format('YYYY-MM-DD');
             const presence = presenceMap[dateStr];
@@ -185,7 +180,6 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
                   ${isWeekend ? 'bg-base-200/30' : 'bg-base-100/40 hover:bg-base-100/80'}
                   ${isToday ? 'bg-primary/[0.03]' : ''}`}
               >
-                {/* Day Number */}
                 <div className="flex justify-between items-start mb-2">
                   <span className={`text-sm font-black transition-all duration-300 ${isToday ? 'bg-primary text-white w-9 h-9 flex items-center justify-center rounded-2xl shadow-lg shadow-primary/30 scale-110'
                       : 'opacity-20 group-hover:opacity-100'
@@ -195,7 +189,6 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
                   {isToday && <span className="text-[8px] font-black uppercase text-primary tracking-tighter mt-1">Oggi</span>}
                 </div>
 
-                {/* Content Area */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pt-6">
                   {presence ? (
                     <div
@@ -230,9 +223,10 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
       {/* --- MODAL DE EDICIÓN FLOTANTE --- */}
       {isEditing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-          <div className="absolute inset-0 bg-base-300/60 backdrop-blur-md animate-fade-in" onClick={() => setIsEditing(false)}></div>
+          <div className="absolute inset-0 bg-base-300/80 backdrop-blur-md transition-opacity" onClick={() => setIsEditing(false)}></div>
 
-          <div className="bg-base-100/95 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.25)] border-2 border-base-300 w-full max-w-lg relative z-10 animate-scale-up p-8 flex flex-col gap-6">
+          {/* 🚀 Animación del modal: animate-fade-in-up */}
+          <div className="bg-base-100/95 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.25)] border-2 border-base-300 w-full max-w-lg relative z-10 animate-fade-in-up p-8 flex flex-col gap-6">
 
             <div className="flex justify-between items-center">
               <div>
@@ -243,7 +237,6 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
             </div>
 
             <div className="space-y-5">
-              {/* Sección Avatar con Live Preview */}
               <div className="flex gap-6 items-center bg-base-200/50 p-4 rounded-3xl border border-base-300">
                 <div className="avatar flex-shrink-0">
                   <div className="w-20 h-20 rounded-[1.5rem] shadow-inner bg-base-300 ring-2 ring-primary/20">
@@ -262,7 +255,6 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
                 </div>
               </div>
 
-              {/* Nombre y Estado */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="form-control">
                   <label className="label py-1"><span className="label-text font-bold text-[10px] uppercase tracking-widest opacity-60">Nome / Alias</span></label>
@@ -289,7 +281,6 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
                 </div>
               </div>
 
-              {/* Bio / Descripción */}
               <div className="form-control">
                 <label className="label py-1">
                   <span className="label-text font-bold text-[10px] uppercase tracking-widest opacity-60">Breve Descrizione / Bio</span>
@@ -305,7 +296,6 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
               </div>
             </div>
 
-            {/* Botones de acción */}
             <div className="flex gap-3 mt-4 pt-4 border-t border-base-300/50">
               <button onClick={() => setIsEditing(false)} className="btn btn-ghost flex-1 rounded-2xl font-bold">Annulla</button>
               <button onClick={handleSaveProfile} className="btn btn-primary flex-1 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/30">
