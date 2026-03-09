@@ -4,18 +4,26 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/it';
 import 'dayjs/locale/es';
 import 'dayjs/locale/en';
-import { useTranslation } from 'react-i18next'; // 👈 IMPORTANTE
-import { Calendar } from './components/Calendar';
+import { useTranslation } from 'react-i18next'; 
+
 import AdminPanel from './components/AdminPanel';
 import Navbar from './components/Navbar';
 import { type User, type Category } from './types';
+import { Calendar } from './components/Calendar';
 import { ProfilePage } from './components/ProfilePage';
 import { LoginPage } from './components/LoginPage';
 
-export default function App() {
-  const { t, i18n } = useTranslation(); // 👈 Inicializamos traductor
+// 1. IMPORTAMOS LOS ICONOS DE MATERIAL UI
+import BusinessIcon from '@mui/icons-material/Business';
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
+import BeachAccessIcon from '@mui/icons-material/BeachAccess';
+import SickIcon from '@mui/icons-material/Sick';
+import LuggageIcon from '@mui/icons-material/Luggage';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-  // 🚀 MAGIA: Sincronizar el idioma de dayjs con el idioma de i18n
+export default function App() {
+  const { t, i18n } = useTranslation(); 
+
   useEffect(() => {
     dayjs.locale(i18n.language);
   }, [i18n.language]);
@@ -46,6 +54,18 @@ export default function App() {
     document.startViewTransition(() => {
       setTheme(nextTheme);
     });
+  };
+
+  // 🚀 2. AÑADIMOS EL TRADUCTOR DE ICONOS
+  const getCategoryIcon = (iconStr?: string | null) => {
+    switch (iconStr) {
+      case '🏢': return <BusinessIcon fontSize="inherit" />;
+      case '🏠': return <HomeWorkIcon fontSize="inherit" />;
+      case '🏖️': return <BeachAccessIcon fontSize="inherit" />;
+      case '🤒': return <SickIcon fontSize="inherit" />;
+      case '💼': return <LuggageIcon fontSize="inherit" />;
+      default: return iconStr || '📍';
+    }
   };
 
   const loadData = async () => {
@@ -167,7 +187,7 @@ export default function App() {
           <div className="modal modal-open modal-bottom sm:modal-middle z-[100]">
             <div className="modal-box relative bg-base-100 shadow-2xl modal-smooth">
               <button onClick={() => setModalData(null)} className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 transition-transform hover:rotate-90">✕</button>
-              {/* 👈 TEXTO TRADUCIDO */}
+              
               <h3 className="font-bold text-lg mb-6 border-b border-base-200 pb-2">📅 {t('app.date')}: {modalData.date}</h3>
 
               <div className="grid grid-cols-3 gap-3 mb-6">
@@ -182,17 +202,16 @@ export default function App() {
                     }`}
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
-                    <span className="text-3xl mb-1">{cat.icon}</span>
+                    <span className="text-4xl mb-2 flex items-center justify-center">{getCategoryIcon(cat.icon)}</span>
                     <span className="text-xs font-bold text-base-content mt-1 text-center">{cat.name}</span>
                   </button>
                 ))}
               </div>
 
               <div className="flex gap-2 w-full mt-4">
-                {/* 👈 TEXTOS TRADUCIDOS */}
                 <button onClick={() => setModalData(null)} className="btn btn-ghost flex-1 transition-all hover:bg-base-200">{t('app.cancel')}</button>
                 {presenciaActual && (
-                  <button onClick={handleDeletePresence} className="btn btn-error text-white flex-1 shadow-sm transition-transform hover:scale-[1.02]">🗑️ {t('app.delete')}</button>
+                  <button onClick={handleDeletePresence} className="btn btn-error text-white flex-1 shadow-sm transition-transform hover:scale-[1.02]"> <DeleteIcon/>{t('app.delete')}</button>
                 )}
               </div>
             </div>

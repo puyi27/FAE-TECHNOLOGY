@@ -5,5 +5,14 @@
   "calendar": { "search": "Cerca un collega...", "today": "Oggi", "employee": "Dipendente", "personal_data": "Anagrafica", "order_role": "Ordina per Ruolo" },
   "profile": { "edit": "Modifica", "personal_profile": "Profilo Personale", "team_member": "Team Member", "you": "Tu", "today": "Oggi", "days": ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"], "customize": "Personalizza", "business_card": "Il tuo biglietto da visita", "avatar_url": "URL Foto Profilo", "name_alias": "Nome / Alias", "status": "Stato Attuale", "status_available": "🟢 Disponibile", "status_busy": "🔴 Occupato", "status_smart": "🏠 Smart Working", "status_vacation": "🏖️ In Ferie", "bio": "Breve Descrizione / Bio", "bio_placeholder": "Scrivi qualcosa su di te...", "cancel": "Annulla", "save": "Salva Modifiche" },
   "admin": { "users": "USERS", "categories": "CATEGORIES", "add_user": "+ USER", "add_category": "+ CATEGORY", "photo": "Foto", "name": "Nome", "phone": "Telefono", "role": "Ruolo", "actions": "Azioni", "icon": "Icona", "no_email": "Nessuna email", "employee": "Dipendente", "edit_user": "Modifica collaboratore", "new_user": "Nuovo collaboratore", "full_name": "Nome Completo", "email": "Email", "alias": "Alias", "profession": "Professione", "permissions": "Permessi", "user_standard": "Utente Standard", "user_admin": "Amministratore", "cancel": "Annulla", "save": "Salva", "create": "Crea", "edit_category": "Modifica categoria", "new_category": "Nuova categoria", "category_name": "Nome Categoria", "confirm_del_user": "Sicuro di eliminare l'utente", "confirm_del_cat": "Sicuro di eliminare la categoria", "err_server": "Errore del server.", "err_network": "Errore di rete." },
-  "daycell": { "status": "Stato", "click_add": "Clicca per aggiungere" }
+  "daycell": { "status": "Stato", "click_add": "Clicca per aggiungere" },
+  "categories_list": {
+    "Smart Working": "Smart Working",
+    "Ufficio": "In Ufficio",
+    "Ferie": "Ferie",
+    "Malattia": "Malattia",
+    "Trasferta": "Trasferta",
+    "Cliente": "Dal Cliente"
+  }
+  
 }

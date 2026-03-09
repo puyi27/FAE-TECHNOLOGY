@@ -5,9 +5,18 @@ import isoWeek from 'dayjs/plugin/isoWeek';
 import { useTranslation } from 'react-i18next'; 
 import { type User, type Presence } from '../types';
 import RetroGrid from './RetroGrid';
+import { getCategoryIcon } from './DayCell'; // Reutilizamos la función de traducción
+
+import DoNotDisturbOnTotalSilenceIcon from '@mui/icons-material/DoNotDisturbOnTotalSilence';
+import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction';
+import BeachAccessIcon from '@mui/icons-material/BeachAccess';
+import EditIcon from '@mui/icons-material/Edit';
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import AddIcon from '@mui/icons-material/Add';
 
 dayjs.extend(isoWeek);
-// ❌ BORRADO: dayjs.locale('it');
 
 interface ProfilePageProps {
   users: User[];
@@ -17,10 +26,12 @@ interface ProfilePageProps {
 }
 
 export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }: ProfilePageProps) => {
-  const { t, i18n } = useTranslation(); // 👈 Extraemos i18n
+  const { t, i18n } = useTranslation(); 
   const { id_user } = useParams();
+  
   const user = users.find(u => u.id_user === Number(id_user));
   const isMyProfile = user?.id_user === currentUser.id_user;
+  
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -36,6 +47,7 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
   if (users.length === 0) return <div className="flex h-96 items-center justify-center"><span className="loading loading-dots loading-lg text-primary"></span></div>;
   if (!user) return <Navigate to="/" />;
 
+  // Cálculos para el grid mensual
   const startOfMonth = currentDate.startOf('month');
   const daysInMonth = currentDate.daysInMonth();
   const blanksCount = startOfMonth.isoWeekday() - 1;
@@ -44,8 +56,7 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
   const dayLabels = t('profile.days', { returnObjects: true }) as string[];
 
   const handleSaveProfile = () => {
-    const isEmpty = formData.avatar.trim() === '';
-    const finalAvatar = isEmpty ? `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.alias)}&background=random` : formData.avatar;
+    const finalAvatar = formData.avatar.trim() === '' ? `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.alias)}&background=random` : formData.avatar;
     if (onUpdateUser) onUpdateUser({ ...user, ...formData, avatar: finalAvatar });
     setFormData(prev => ({ ...prev, avatar: finalAvatar }));
     setIsEditing(false);
@@ -53,16 +64,19 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 relative">
+      
+      {/* --- TARJETA DE PERFIL --- */}
       <div className="bg-base-100/40 backdrop-blur-xl rounded-[2.5rem] p-8 shadow-2xl border border-base-300 flex flex-wrap items-center gap-8 mb-12 relative overflow-hidden animate-fade-in-up">
         <RetroGrid className="opacity-40 mix-blend-overlay" />
         <div className="absolute top-0 right-0 p-8 flex items-center gap-3 z-20">
           {isMyProfile && (
-            <button onClick={() => { setFormData({ alias: user?.alias || '', avatar: user?.avatar || '', description: user?.description || '', status: user?.status || 'Disponibile' }); setIsEditing(true); }} className="btn btn-primary btn-sm rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg hover:scale-105 transition-transform">
-              ✏️ {t('profile.edit')}
+            <button onClick={() => { setFormData({ alias: user.alias, avatar: user.avatar || '', description: user.description || '', status: user.status || 'Disponibile' }); setIsEditing(true); }} className="btn btn-primary btn-sm rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg hover:scale-105 transition-transform gap-1">
+              <EditIcon fontSize="small"/> {t('profile.edit')}
             </button>
           )}
           <Link to="/" className="btn btn-circle btn-ghost hover:rotate-90 transition-transform">✕</Link>
         </div>
+        
         <div className="relative group z-10">
           <div className="avatar">
             <div className="w-28 h-28 rounded-[2rem] ring ring-primary ring-offset-base-100 ring-offset-4 shadow-2xl bg-base-300">
@@ -70,8 +84,13 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
             </div>
           </div>
           {user.status && (
-            <div className="absolute -bottom-2 -right-2 bg-base-100 rounded-full border-4 border-base-100 flex items-center justify-center shadow-lg px-1.5 py-0.5 z-10">
-              <span className="text-sm" title={user.status}>{user.status === 'Occupato' ? '🔴' : user.status === 'Smart Working' ? '🏠' : user.status === 'In Ferie' ? '🏖️' : '🟢'}</span>
+            <div className="absolute -bottom-2 -right-2 bg-base-100 rounded-full border-4 border-base-100 flex items-center justify-center shadow-lg px-2 py-1 z-10 text-primary">
+              <span className="flex items-center justify-center" title={user.status}>
+                {user.status === 'Occupato' ? <DoNotDisturbOnTotalSilenceIcon fontSize="small" className="text-error" /> : 
+                 user.status === 'Smart Working' ? <HomeWorkIcon fontSize="small" className="text-info" /> : 
+                 user.status === 'In Ferie' ? <BeachAccessIcon fontSize="small" className="text-warning" /> : 
+                 <OnlinePredictionIcon fontSize="small" className="text-success" />}
+              </span>
             </div>
           )}
         </div>
@@ -80,28 +99,28 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
           <h2 className="text-5xl font-black tracking-tighter text-base-content mb-2">{user.full_name || user.alias}</h2>
           {user.description && <p className="text-sm font-medium text-base-content/70 italic mb-3 max-w-md">"{user.description}"</p>}
           <div className="flex gap-2">
-            <span className="badge border-none bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] animate-bg-gradient text-white font-bold px-4 py-3 uppercase text-[10px] tracking-widest shadow-lg">
-              {user.work || t('profile.team_member')}
-            </span>
+            <span className="badge border-none bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] animate-bg-gradient text-white font-bold px-4 py-3 uppercase text-[10px] tracking-widest shadow-lg">{user.work || t('profile.team_member')}</span>
             {isMyProfile && <span className="badge badge-secondary font-bold px-4 py-3 uppercase text-[10px] tracking-widest text-white shadow-sm">{t('profile.you')}</span>}
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 px-4 gap-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-        <div>
-          {/* 🚀 AÑADIDO .locale(i18n.language) AQUÍ PARA EL MES */}
-          <h3 className="text-4xl font-black capitalize tracking-tight text-base-content/90">
+      {/* --- NAVEGACIÓN MENSUAL --- */}
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-10 px-4 gap-4 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+        <button onClick={() => setCurrentDate(dayjs())} className="btn bg-base-100/50 backdrop-blur-md shadow-sm border border-base-300 rounded-2xl px-8 font-black uppercase text-xs tracking-widest hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all w-full sm:w-auto order-2 sm:order-1">
+          {t('profile.today')}
+        </button>
+        <div className="flex items-center gap-2 bg-base-100/50 backdrop-blur-md shadow-xl border border-base-300 p-2 rounded-[2rem] w-full sm:w-auto justify-between order-1 sm:order-2">
+          <button onClick={() => setCurrentDate(c => c.subtract(1, 'month'))} className="btn btn-circle btn-ghost text-xl hover:bg-primary/10 hover:text-primary transition-all"><KeyboardArrowLeftIcon/></button>
+          <h3 className="text-2xl sm:text-3xl font-black capitalize tracking-tight text-base-content/90 min-w-[180px] text-center px-4">
             {currentDate.locale(i18n.language).format('MMMM')} <span className="text-primary tracking-tighter">{currentDate.locale(i18n.language).format('YYYY')}</span>
           </h3>
+          <button onClick={() => setCurrentDate(c => c.add(1, 'month'))} className="btn btn-circle btn-ghost text-xl hover:bg-primary/10 hover:text-primary transition-all"><KeyboardArrowRightIcon/></button>
         </div>
-        <div className="join bg-base-100/50 backdrop-blur-md shadow-xl border border-base-300 p-1 rounded-2xl">
-          <button onClick={() => setCurrentDate(c => c.subtract(1, 'month'))} className="btn btn-ghost join-item rounded-xl px-6 text-xl hover:bg-primary/10 hover:text-primary transition-all">←</button>
-          <button onClick={() => setCurrentDate(dayjs())} className="btn btn-ghost join-item rounded-xl px-8 font-black uppercase text-xs tracking-widest">{t('profile.today')}</button>
-          <button onClick={() => setCurrentDate(c => c.add(1, 'month'))} className="btn btn-ghost join-item rounded-xl px-6 text-xl hover:bg-primary/10 hover:text-primary transition-all">→</button>
-        </div>
+        <div className="hidden sm:block w-[100px] order-3"></div>
       </div>
 
+      {/* --- GRID DEL CALENDARIO --- */}
       <div className="bg-base-100/30 backdrop-blur-md rounded-[3rem] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.1)] border border-base-300 overflow-hidden animate-fade-in-up" style={{ animationDelay: '200ms' }}>
         <div className="grid grid-cols-7 bg-base-200/60 border-b border-base-300">
           {dayLabels.map(d => <div key={d} className="py-6 text-center text-[11px] font-black opacity-30 uppercase tracking-[0.2em]">{d}</div>)}
@@ -113,21 +132,31 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
             const presence = presenceMap[dateStr];
             const isWeekend = day.isoWeekday() >= 6;
             const isToday = day.isSame(dayjs(), 'day');
+            
             return (
               <div key={dateStr} className={`min-h-[140px] border-b border-r border-base-300/40 p-4 relative group transition-all duration-500 ${isWeekend ? 'bg-base-200/30' : 'bg-base-100/40 hover:bg-base-100/80'} ${isToday ? 'bg-primary/[0.03]' : ''}`}>
                 <div className="flex justify-between items-start mb-2">
                   <span className={`text-sm font-black transition-all duration-300 ${isToday ? 'bg-primary text-white w-9 h-9 flex items-center justify-center rounded-2xl shadow-lg shadow-primary/30 scale-110' : 'opacity-20 group-hover:opacity-100'}`}>{day.format('D')}</span>
                   {isToday && <span className="text-[8px] font-black uppercase text-primary tracking-tighter mt-1">{t('profile.today')}</span>}
                 </div>
+                
                 <div className="absolute inset-0 flex flex-col items-center justify-center pt-6">
                   {presence ? (
-                    <div className={`flex flex-col items-center gap-2 group/icon transition-all duration-500 ${isMyProfile ? 'cursor-pointer hover:scale-125' : 'opacity-80'}`} onClick={() => isMyProfile && onAddPresence(user.id_user, dateStr)}>
-                      <div className="p-3 rounded-3xl bg-base-100 shadow-md border border-base-200 group-hover/icon:shadow-xl group-hover/icon:border-primary/30 transition-all"><span className="text-4xl filter drop-shadow-sm">{presence.categories?.icon}</span></div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-base-content/40 group-hover/icon:text-primary transition-colors">{presence.categories?.name}</span>
+                    <div className={`flex flex-col items-center gap-2 group/icon transition-all duration-500 ${isMyProfile ? 'cursor-pointer hover:scale-110' : 'opacity-80'}`} onClick={() => isMyProfile && onAddPresence(user.id_user, dateStr)}>
+                      <div className="p-3 rounded-3xl bg-base-100 shadow-md border border-base-200 group-hover/icon:shadow-xl group-hover/icon:border-primary/30 transition-all text-4xl text-base-content/80 flex items-center justify-center drop-shadow-sm">
+                        {getCategoryIcon(presence.categories?.icon)}
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-base-content/50 group-hover/icon:text-primary transition-colors">{presence.categories?.name}</span>
                     </div>
-                  ) : (isMyProfile && !isWeekend && (
-                    <button onClick={() => onAddPresence(user.id_user, dateStr)} className="btn btn-primary btn-circle btn-md opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100 shadow-xl border-none"><span className="text-xl">+</span></button>
-                  ))}
+                  ) : (
+                    isMyProfile && !isWeekend && (
+                      <div onClick={() => onAddPresence(user.id_user, dateStr)} className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+                        <div className="w-10 h-10 rounded-full border-2 border-dashed border-primary/40 flex items-center justify-center text-primary/50 group-hover:border-primary group-hover:text-primary transition-all bg-base-100/50 shadow-inner scale-90 group-hover:scale-100">
+                          <AddIcon fontSize="small" />
+                        </div>
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
             );
@@ -135,6 +164,7 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
         </div>
       </div>
 
+      {/* --- MODAL EDICIÓN --- */}
       {isEditing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
           <div className="absolute inset-0 bg-base-300/80 backdrop-blur-md transition-opacity" onClick={() => setIsEditing(false)}></div>
