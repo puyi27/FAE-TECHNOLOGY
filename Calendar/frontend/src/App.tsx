@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import dayjs from 'dayjs';
+import 'dayjs/locale/it';
+import 'dayjs/locale/es';
+import 'dayjs/locale/en';
+import { useTranslation } from 'react-i18next'; // 👈 IMPORTANTE
 import { Calendar } from './components/Calendar';
 import AdminPanel from './components/AdminPanel';
 import Navbar from './components/Navbar';
@@ -8,21 +13,25 @@ import { ProfilePage } from './components/ProfilePage';
 import { LoginPage } from './components/LoginPage';
 
 export default function App() {
+  const { t, i18n } = useTranslation(); // 👈 Inicializamos traductor
+
+  // 🚀 MAGIA: Sincronizar el idioma de dayjs con el idioma de i18n
+  useEffect(() => {
+    dayjs.locale(i18n.language);
+  }, [i18n.language]);
+
   const [users, setUsers] = useState<User[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [modalData, setModalData] = useState<{ id_user: number; date: string } | null>(null);
 
-  // 🌓 ESTADO DEL TEMA (Local Storage)
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   
-  // 🚀 ESTADOS DE SESIÓN REALES (Leen del LocalStorage al arrancar)
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const savedUser = localStorage.getItem('fae_user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
   const [token, setToken] = useState<string | null>(localStorage.getItem('fae_token'));
 
-  // Aplicar tema y guardar en localStorage
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
@@ -39,7 +48,6 @@ export default function App() {
     });
   };
 
-  // 🚀 CARGA DE DATOS 
   const loadData = async () => {
     try {
       const [usersRes, categoriesRes] = await Promise.all([
@@ -49,7 +57,6 @@ export default function App() {
       const usersData = await usersRes.json();
       const categoriesData = await categoriesRes.json();
 
-      // Mantenemos la foto de la DB. Solo generamos la falsa si en la DB está vacía/null
       const usersProcessed = usersData.map((u: any) => ({
         ...u,
         avatar: u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.alias)}&background=random`
@@ -64,7 +71,6 @@ export default function App() {
 
   useEffect(() => { loadData(); }, []);
 
-  // 🚀 FUNCIONES DE LOGIN Y LOGOUT REALES
   const handleLogin = (user: User, jwtToken: string) => {
     setCurrentUser(user);
     setToken(jwtToken);
@@ -79,7 +85,6 @@ export default function App() {
     localStorage.removeItem('fae_token');
   };
 
-  // --- FUNCIONES DE PRESENCIAS ---
   const handleSavePresence = async (categoryId: number) => {
     if (!modalData) return;
     await fetch('http://localhost:4000/api/presences', {
@@ -110,7 +115,6 @@ export default function App() {
     ? users.find(u => u.id_user === modalData.id_user)?.presences.find(p => p.date === modalData.date)
     : null;
 
-  // 🚀 FUNCIÓN: GUARDAR EL PERFIL EN LA BASE DE DATOS
   const handleUpdateUser = async (updatedData: any) => {
     try {
       const response = await fetch(`http://localhost:4000/api/users/${updatedData.id_user}`, {
@@ -125,82 +129,46 @@ export default function App() {
       });
 
       if (response.ok) {
-        // Actualizar el estado general de usuarios (para la tabla principal)
         setUsers(prevUsers => 
           prevUsers.map(u => u.id_user === updatedData.id_user ? { ...u, ...updatedData } : u)
         );
-        
-        // Si el usuario editado es el mismo que está logueado, actualizar el Navbar
         if (currentUser?.id_user === updatedData.id_user) {
           const newUserState = { ...currentUser, ...updatedData };
           setCurrentUser(newUserState);
-          // Actualizamos también la memoria para no perder los cambios al refrescar
           localStorage.setItem('fae_user', JSON.stringify(newUserState));
         }
-      } else {
-        console.error("Error al guardar en el servidor");
       }
     } catch (error) {
-      console.error("Error de conexión al actualizar usuario:", error);
+      console.error("Error:", error);
     }
   };
 
-  // 🔒 EL CANDADO: Si no hay sesión iniciada, solo renderiza la pantalla de Login
   if (!currentUser || !token) {
     return <LoginPage onLogin={handleLogin} />;
   }
 
-  // SI HAY SESIÓN, MUESTRA LA APLICACIÓN:
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-base-200 text-base-content transition-colors duration-300">
 
-        <Navbar 
-          theme={theme} 
-          toggleTheme={toggleTheme} 
-          currentUser={currentUser} 
-          onLogout={handleLogout} 
-        />
+        <Navbar theme={theme} toggleTheme={toggleTheme} currentUser={currentUser} onLogout={handleLogout} />
 
         <main className="max-w-7xl mx-auto p-4 md:p-8">
           <Routes>
-            <Route 
-  path="/" 
-  element={
-    <Calendar 
-      users={users} 
-      onAddPresence={onAddPresence} 
-      currentUser={currentUser} 
-    />
-  } 
-/>
-            
-            {/* 🔒 PROTECCIÓN DE RUTA: Solo los ADMIN pueden acceder aquí */}
+            <Route path="/" element={<Calendar users={users} onAddPresence={onAddPresence} currentUser={currentUser} />} />
             {currentUser.role === 'admin' || currentUser.role === 'ADMIN' ? (
               <Route path="/admin" element={<AdminPanel />} />
             ) : null}
-            
-            <Route 
-              path="/profile/:id_user" 
-              element={
-                <ProfilePage 
-                  users={users} 
-                  onAddPresence={onAddPresence} 
-                  onUpdateUser={handleUpdateUser} 
-                  currentUser={currentUser} /* <-- Pásale el currentUser si lo necesitas ahí */
-                />
-              } 
-            />
+            <Route path="/profile/:id_user" element={<ProfilePage users={users} onAddPresence={onAddPresence} onUpdateUser={handleUpdateUser} currentUser={currentUser} />} />
           </Routes>
-
         </main>
 
-        {/* --- MODAL DE PRESENCIAS --- */}
         {modalData && (
-          <div className="modal modal-open modal-bottom sm:modal-middle z-50">
+          <div className="modal modal-open modal-bottom sm:modal-middle z-[100]">
             <div className="modal-box relative bg-base-100 shadow-2xl modal-smooth">
               <button onClick={() => setModalData(null)} className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 transition-transform hover:rotate-90">✕</button>
-              <h3 className="font-bold text-lg mb-6 border-b border-base-200 pb-2">📅 Data: {modalData.date}</h3>
+              {/* 👈 TEXTO TRADUCIDO */}
+              <h3 className="font-bold text-lg mb-6 border-b border-base-200 pb-2">📅 {t('app.date')}: {modalData.date}</h3>
 
               <div className="grid grid-cols-3 gap-3 mb-6">
                 {categories.map((cat, index) => (
@@ -221,13 +189,13 @@ export default function App() {
               </div>
 
               <div className="flex gap-2 w-full mt-4">
-                <button onClick={() => setModalData(null)} className="btn btn-ghost flex-1 transition-all hover:bg-base-200">Annulla</button>
+                {/* 👈 TEXTOS TRADUCIDOS */}
+                <button onClick={() => setModalData(null)} className="btn btn-ghost flex-1 transition-all hover:bg-base-200">{t('app.cancel')}</button>
                 {presenciaActual && (
-                  <button onClick={handleDeletePresence} className="btn btn-error text-white flex-1 shadow-sm transition-transform hover:scale-[1.02]">🗑️ Elimina</button>
+                  <button onClick={handleDeletePresence} className="btn btn-error text-white flex-1 shadow-sm transition-transform hover:scale-[1.02]">🗑️ {t('app.delete')}</button>
                 )}
               </div>
             </div>
-            
             <div className="modal-backdrop bg-base-300/60 backdrop-blur-sm cursor-pointer transition-opacity duration-300" onClick={() => setModalData(null)}></div>
           </div>
         )}

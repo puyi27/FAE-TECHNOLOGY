@@ -1,5 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { type User } from '../types'; 
+import { useTranslation } from 'react-i18next'; // 👈 1. Importamos el hook de traducciones
+import '../i18n/config'; // (Asegúrate de que la ruta sea correcta según dónde esté tu config)
 
 interface NavbarProps {
   theme: string;
@@ -10,6 +12,15 @@ interface NavbarProps {
 
 export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: NavbarProps) {
   const location = useLocation();
+
+  // 👇 2. Inicializamos el traductor
+  const { t, i18n } = useTranslation();
+
+  // 👇 3. Creamos la función para cambiar el idioma y guardarlo en memoria
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('fae_language', lng);
+  };
 
   // Función auxiliar para saber si el usuario es admin
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'ADMIN';
@@ -22,14 +33,14 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
         <div className="flex-1">
           <Link to="/" className="group flex flex-col cursor-pointer w-max">
             <h1 className="text-2xl md:text-3xl font-black tracking-tighter flex items-center gap-2">
-              <span className="text-base-content">FAE TECHNOLOGY</span> 
+              <span className="text-base-content">FAE</span>
               {/* ✨ MAGIC UI: Shimmer Text Effect */}
               <span className="inline-flex animate-background-shine bg-[linear-gradient(110deg,rgba(var(--p),1),45%,#fff,55%,rgba(var(--p),1))] bg-[length:200%_100%] bg-clip-text text-transparent font-bold">
                 TECHNOLOGY
               </span>
             </h1>
             <span className="text-[10px] md:text-xs text-base-content/50 font-semibold tracking-widest uppercase mt-0.5 group-hover:text-primary transition-colors">
-              Gestione Presenze
+              {t('navbar.title')} {/* 👈 Título traducido */}
             </span>
           </Link>
         </div>
@@ -46,8 +57,20 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
                 : 'text-base-content/60 hover:bg-base-200/50 hover:text-base-content'
             }`}
           >
-            <span className="text-lg opacity-80">📅</span> Calendario
+            <span className="text-lg opacity-80">📅</span> {t('navbar.calendar')}
           </Link>
+
+          {/* SELECTOR DE IDIOMAS */}
+          <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle btn-sm md:btn-md hover:bg-base-200/50 transition-colors text-xl">
+              🌐
+            </div>
+            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow-2xl bg-base-100/95 backdrop-blur-xl rounded-2xl border border-base-300 w-36 mt-4">
+              <li><button onClick={() => changeLanguage('it')} className={i18n.language === 'it' ? 'text-primary font-bold' : ''}>🇮🇹 Italiano</button></li>
+              <li><button onClick={() => changeLanguage('en')} className={i18n.language === 'en' ? 'text-primary font-bold' : ''}>🇬🇧 English</button></li>
+              <li><button onClick={() => changeLanguage('es')} className={i18n.language === 'es' ? 'text-primary font-bold' : ''}>🇪🇸 Español</button></li>
+            </ul>
+          </div>
 
           {/* 🔒 Enlace: Admin (SOLO VISIBLE PARA ADMIN) */}
           {isAdmin && (
@@ -59,7 +82,7 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
                   : 'text-base-content/60 hover:bg-base-200/50 hover:text-base-content'
               }`}
             >
-              <span className="text-lg opacity-80">⚙️</span> Admin
+              <span className="text-lg opacity-80">⚙️</span> {t('navbar.admin')}
             </Link>
           )}
           
@@ -76,7 +99,6 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
           {/* --- MENÚ DESPLEGABLE DEL USUARIO --- */}
           {currentUser && (
             <div className="dropdown dropdown-end ml-1">
-              {/* Botón del Avatar */}
               <div 
                 tabIndex={0} 
                 role="button" 
@@ -91,10 +113,8 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
                 </div>
               </div>
               
-              {/* Contenido del Menú */}
               <ul tabIndex={0} className="mt-4 z-[1] p-2 shadow-2xl menu menu-sm dropdown-content bg-base-100/95 backdrop-blur-xl rounded-[1.5rem] border border-base-300 w-64 origin-top-right">
                 
-                {/* Cabecera del menú con nombre y rol */}
                 <div className="px-4 py-3 flex items-center gap-3 border-b border-base-200/50 mb-2">
                   <div className="avatar">
                     <div className="w-10 h-10 rounded-full">
@@ -121,12 +141,11 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-lg opacity-50 group-hover:opacity-100 transition-opacity">👤</span> 
-                      Il Mio Profilo
+                      {t('navbar.profile')} {/* 👈 Traducido */}
                     </div>
                   </Link>
                 </li>
 
-                {/* Enlaces versión móvil */}
                 <div className="md:hidden">
                   <li>
                     <Link 
@@ -134,11 +153,10 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
                       onClick={() => (document.activeElement as HTMLElement)?.blur()}
                       className="py-3 font-bold hover:bg-base-200/80 rounded-xl transition-colors"
                     >
-                      <span className="text-lg opacity-50 mr-2">📅</span> Calendario
+                      <span className="text-lg opacity-50 mr-2">📅</span> {t('navbar.calendar')}
                     </Link>
                   </li>
                   
-                  {/* 🔒 Enlace: Admin móvil (SOLO VISIBLE PARA ADMIN) */}
                   {isAdmin && (
                     <li>
                       <Link 
@@ -146,7 +164,7 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
                         onClick={() => (document.activeElement as HTMLElement)?.blur()}
                         className="py-3 font-bold hover:bg-base-200/80 rounded-xl transition-colors text-primary"
                       >
-                        <span className="text-lg opacity-50 mr-2">⚙️</span> Admin
+                        <span className="text-lg opacity-50 mr-2">⚙️</span> {t('navbar.admin')}
                       </Link>
                     </li>
                   )}
@@ -154,7 +172,6 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
 
                 <div className="divider my-1 opacity-50"></div>
                 
-                {/* Botón Logout */}
                 <li>
                   <button 
                     onClick={onLogout} 
@@ -162,7 +179,7 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-lg opacity-70 group-hover:opacity-100 transition-opacity">🚪</span> 
-                      Esci
+                      {t('navbar.logout')} {/* 👈 Traducido */}
                     </div>
                   </button>
                 </li>
