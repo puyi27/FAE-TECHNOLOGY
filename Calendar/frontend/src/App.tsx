@@ -13,7 +13,6 @@ import { Calendar } from './components/Calendar';
 import { ProfilePage } from './components/ProfilePage';
 import { LoginPage } from './components/LoginPage';
 
-// 1. IMPORTAMOS LOS ICONOS DE MATERIAL UI
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import BusinessIcon from '@mui/icons-material/Business';
 import HomeWorkIcon from '@mui/icons-material/HomeWork';
@@ -22,12 +21,12 @@ import SickIcon from '@mui/icons-material/Sick';
 import LuggageIcon from '@mui/icons-material/Luggage';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-// 🚀 AÑADIMOS EL HELPER DE TRADUCCIÓN DINÁMICA FUERA DEL COMPONENTE
-export const getDynamicCategoryName = (cat: any, currentLang: string) => {
+// 🚀 FUNCIÓN ACTUALIZADA: Ahora recibe 't' y busca en el JSON si la BD está vacía
+export const getDynamicCategoryName = (cat: any, currentLang: string, t: any) => {
   if (!cat) return '';
   if (currentLang === 'es' && cat.name_es) return cat.name_es;
   if (currentLang === 'en' && cat.name_en) return cat.name_en;
-  return cat.name;
+  return t(`categories_list.${cat.name}`, { defaultValue: cat.name });
 };
 
 export default function App() {
@@ -65,7 +64,6 @@ export default function App() {
     });
   };
 
-  // 🚀 2. AÑADIMOS EL TRADUCTOR DE ICONOS
   const getCategoryIcon = (iconStr?: string | null) => {
     switch (iconStr) {
       case '🏢': return <BusinessIcon fontSize="inherit" />;
@@ -212,9 +210,9 @@ export default function App() {
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
                     <span className="text-4xl mb-2 flex items-center justify-center">{getCategoryIcon(cat.icon)}</span>
-                    {/* 🚀 USAMOS LA TRADUCCIÓN DINÁMICA DIRECTAMENTE */}
+                    {/* 🚀 LE PASAMOS LA 't' A LA FUNCIÓN AQUÍ TAMBIÉN */}
                     <span className="text-xs font-bold text-base-content mt-1 text-center">
-                      {getDynamicCategoryName(cat, i18n.language)}
+                      {getDynamicCategoryName(cat, i18n.language, t)}
                     </span>
                   </button>
                 ))}

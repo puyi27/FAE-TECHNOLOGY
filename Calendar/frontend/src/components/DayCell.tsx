@@ -7,12 +7,16 @@ import SickIcon from '@mui/icons-material/Sick';
 import LuggageIcon from '@mui/icons-material/Luggage';
 import AddIcon from '@mui/icons-material/Add'; 
 
-// 🚀 Helper de traducción dinámica
-export const getDynamicCategoryName = (cat: any, currentLang: string) => {
+// 🚀 FUNCIÓN ACTUALIZADA: Recibe 't' y lee el JSON para las categorías antiguas
+export const getDynamicCategoryName = (cat: any, currentLang: string, t: any) => {
   if (!cat) return '';
+  
+  // 1. Prioridad: Lo que esté guardado en la Base de Datos
   if (currentLang === 'es' && cat.name_es) return cat.name_es;
   if (currentLang === 'en' && cat.name_en) return cat.name_en;
-  return cat.name;
+  
+  // 2. Si la Base de Datos está vacía, lee tu archivo .json
+  return t(`categories_list.${cat.name}`, { defaultValue: cat.name });
 };
 
 interface DayCellProps {
@@ -42,7 +46,7 @@ export const DayCell = ({ presence, onAdd, isEditable }: DayCellProps) => {
         ${isEditable ? 'cursor-pointer hover:bg-base-200' : 'cursor-default'}`}
       title={
         presence 
-          ? `${t('daycell.status')}: ${getDynamicCategoryName(presence.categories, i18n.language)}` 
+          ? `${t('daycell.status')}: ${getDynamicCategoryName(presence.categories, i18n.language, t)}` 
           : undefined
       }
     >
@@ -52,7 +56,8 @@ export const DayCell = ({ presence, onAdd, isEditable }: DayCellProps) => {
             {getCategoryIcon(presence.categories?.icon)}
           </span>
           <span className="text-[10px] text-base-content/60 font-black mt-1 text-center uppercase tracking-widest leading-tight">
-            {getDynamicCategoryName(presence.categories, i18n.language)}
+            {/* 🚀 LE PASAMOS LA 't' AQUÍ PARA QUE TRADUZCA EL TEXTO VISIBLE */}
+            {getDynamicCategoryName(presence.categories, i18n.language, t)}
           </span>
         </div>
       ) : (
