@@ -1,9 +1,33 @@
 {
-  "navbar": { "title": "Gestione Presenze", "calendar": "Calendario", "admin": "Admin", "profile": "Il Mio Profilo", "logout": "Esci" },
-  "login": { "welcome": "Benvenuto", "subtitle": "Area Riservata al Team", "password": "Password", "btn_login": "Accedi", "no_account": "Non hai un account?", "contact_admin": "Rivolgiti all'amministratore di sistema per richiederne la creazione.", "invalid_creds": "Credenziali non valide", "server_error": "Impossibile connettersi al server." },
+  "navbar": { "title": "Gestione Presenze", "calendar": "Calendario", "admin": "Admin", "profile": "Mio Profilo", "logout": "Esci" },
+  "login": { "welcome": "Benvenuto", "subtitle": "Area Riservata Team", "password": "Password", "btn_login": "Accedi", "no_account": "Non hai un account?", "contact_admin": "Contatta l'amministratore di sistema per richiederne uno.", "invalid_creds": "Credenziali non valide", "server_error": "Impossibile connettersi al server." },
   "app": { "date": "Data", "cancel": "Annulla", "delete": "Elimina" },
-  "calendar": { "search": "Cerca un collega...", "today": "Oggi", "employee": "Dipendente", "personal_data": "Anagrafica", "order_role": "Ordina per Ruolo" },
-  "profile": { "edit": "Modifica", "personal_profile": "Profilo Personale", "team_member": "Team Member", "you": "Tu", "today": "Oggi", "days": ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"], "customize": "Personalizza", "business_card": "Il tuo biglietto da visita", "avatar_url": "URL Foto Profilo", "name_alias": "Nome / Alias", "status": "Stato Attuale", "status_available": "🟢 Disponibile", "status_busy": "🔴 Occupato", "status_smart": "🏠 Smart Working", "status_vacation": "🏖️ In Ferie", "bio": "Breve Descrizione / Bio", "bio_placeholder": "Scrivi qualcosa su di te...", "cancel": "Annulla", "save": "Salva Modifiche" },
-  "admin": { "users": "USERS", "categories": "CATEGORIES", "add_user": "+ USER", "add_category": "+ CATEGORY", "photo": "Foto", "name": "Nome", "phone": "Telefono", "role": "Ruolo", "actions": "Azioni", "icon": "Icona", "no_email": "Nessuna email", "employee": "Dipendente", "edit_user": "Modifica collaboratore", "new_user": "Nuovo collaboratore", "full_name": "Nome Completo", "email": "Email", "alias": "Alias", "profession": "Professione", "permissions": "Permessi", "user_standard": "Utente Standard", "user_admin": "Amministratore", "cancel": "Annulla", "save": "Salva", "create": "Crea", "edit_category": "Modifica categoria", "new_category": "Nuova categoria", "category_name": "Nome Categoria", "confirm_del_user": "Sicuro di eliminare l'utente", "confirm_del_cat": "Sicuro di eliminare la categoria", "err_server": "Errore del server.", "err_network": "Errore di rete." },
-  "daycell": { "status": "Stato", "click_add": "Clicca per aggiungere" }
+  "calendar": { "search": "Cerca un collega...", "today": "Oggi", "employee": "Dipendente", "personal_data": "Dati Personali", "order_role": "Ordina per Ruolo" },
+  "profile": { "edit": "Modifica", "personal_profile": "Profilo Personale", "team_member": "Membro del Team", "you": "Tu", "today": "Oggi", "days": ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"], "customize": "Personalizza", "business_card": "Il tuo biglietto da visita", "avatar_url": "URL Foto Profilo", "name_alias": "Nome / Alias", "status": "Stato Attuale", "status_available": "🟢 Disponibile", "status_busy": "🔴 Occupato", "status_smart": "🏠 Smart Working", "status_vacation": "🏖️ In Ferie", "bio": "Breve Descrizione / Bio", "bio_placeholder": "Scrivi qualcosa su di te...", "cancel": "Annulla", "save": "Salva Modifiche" },
+  "admin": { 
+    "users": "UTENTI", "categories": "CATEGORIE", "add_user": "+ UTENTE", "add_category": "+ CATEGORIA", "photo": "Foto", "name": "Nome", "phone": "Telefono", "role": "Ruolo", "actions": "Azioni", "icon": "Icona", "no_email": "Nessuna email", "employee": "Dipendente", "edit_user": "Modifica collaboratore", "new_user": "Nuovo collaboratore", "full_name": "Nome e Cognome", "email": "Email", "alias": "Alias", "profession": "Professione", "permissions": "Permessi", "user_standard": "Utente Standard", "user_admin": "Amministratore", "cancel": "Annulla", "save": "Salva", "create": "Crea", "edit_category": "Modifica categoria", "new_category": "Nuova categoria", "category_name": "Nome Categoria", "confirm_del_user": "Sei sicuro di voler eliminare l'utente", "confirm_del_cat": "Sei sicuro di voler eliminare la categoria", "err_server": "Errore del server.", "err_network": "Errore di rete.",
+    "cat_name_base": "Nome (Italiano / Base) *",
+    "cat_name_en": "Inglese (Opzionale)",
+    "cat_name_es": "Spagnolo (Opzionale)",
+    "cat_ph_base": "Es: Smart Working",
+    "cat_ph_en": "Es: Remote Work",
+    "cat_ph_es": "Es: Teletrabajo",
+    "user_ph_name": "Es: Mario Rossi",
+    "user_ph_email": "mario@email.com",
+    "user_ph_alias": "Mario",
+    "user_ph_phone": "+39 333...",
+    "user_ph_work": "Es: Sviluppatore",
+    "cat_help_text": "Usa il nome originale del database affinché la traduzione automatica funzioni.",
+    "err_select_icon": "Per favore, seleziona un'icona."
+  },
+  "daycell": { "status": "Stato", "click_add": "Clicca per aggiungere" },
+  "categories_list": {
+    "Casa": "Casa",
+    "Ferie": "Ferie",
+    "Malattia": "Malattia",
+    "Ufficio Kilometro Rosso": "Ufficio Kilometro Rosso",
+    "Ufficie Albino": "Ufficio Albino",
+    "Ufficie Gazzaniga": "Ufficio Gazzaniga",
+    "Businesses Travel": "Trasferta"
+  }
 }
