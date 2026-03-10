@@ -60,7 +60,6 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
   return (
     <div className="space-y-6 animate-fade-in">
 
-      {/* --- CABECERA (Buscador, Navegación, Hoy) --- */}
       <div className="grid grid-cols-1 lg:grid-cols-3 items-center gap-4 px-4">
         <div className="flex justify-start w-full order-2 lg:order-none">
           <div className="relative w-full lg:w-72 group">
@@ -92,20 +91,22 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
         </div>
 
         <div className="flex justify-end w-full order-3 lg:order-none">
-          <button onClick={() => setCurrentDate(dayjs())} className="btn btn-sm bg-base-100/50 shadow-sm border border-base-300 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all w-full lg:w-auto">
+          <button onClick={() => setCurrentDate(dayjs())} 
+            className="btn btn-sm bg-base-100/50 shadow-sm border border-base-300 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all w-full lg:w-auto">
             {t('calendar.today')}
           </button>
         </div>
       </div>
 
-      {/* --- TABLA --- */}
+
       <div className="overflow-hidden rounded-[2.5rem] border-2 border-base-300 bg-base-100 shadow-2xl">
         <table className="table table-fixed w-full border-separate border-spacing-0">
           <thead>
             <tr className="bg-base-200 select-none">
               <th className="p-0 border-r-2 border-base-300 w-[300px] sticky left-0 z-20 bg-base-200 shadow-md">
                 <div className="flex flex-col h-full divide-y divide-base-300">
-                   <div onClick={() => requestSort('alias')} className={`p-5 cursor-pointer hover:bg-primary/5 transition-all flex items-center justify-between group/sort ${sortConfig.key === 'alias' ? 'bg-primary/10' : ''}`}>
+                   <div onClick={() => requestSort('alias')} className={`p-5 cursor-pointer hover:bg-primary/5 transition-all flex items-center justify-between group/sort 
+                      ${sortConfig.key === 'alias' ? 'bg-primary/10' : ''}`}>
                      <div>
                         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block mb-1">{t('calendar.employee')}</span>
                         <div className={`text-lg font-black tracking-tighter transition-colors ${sortConfig.key === 'alias' ? 'text-primary' : 'text-base-content'}`}>{t('calendar.personal_data')}</div>
@@ -136,9 +137,9 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
               const canEdit = isMyRow || currentUser?.role === 'admin' || currentUser?.role === 'ADMIN';
 
               return (
-                <tr key={user.id_user} className={`group/row transition-all duration-300 ${isMyRow ? 'bg-primary/10 hover:bg-primary/20 shadow-sm relative z-10' : `hover:bg-primary/5 ${index % 2 !== 0 ? 'bg-base-200/40' : 'bg-base-100'}`}`}>
-                  
-                  
+                <tr key={user.id_user} className={`group/row transition-all duration-300 ${isMyRow ? 'bg-primary/10 hover:bg-primary/20 shadow-sm relative z-10' : `hover:bg-primary/5 
+                  ${index % 2 !== 0 ? 'bg-base-200/40' : 'bg-base-100'}`}`}>
+                                
                   <td className="p-6 flex items-center gap-5 border-r-2 border-base-300 bg-inherit cursor-pointer group/cell relative z-10" onClick={() => navigate(`/profile/${user.id_user}`)}>
                     <div className={`absolute left-0 top-0 w-1.5 bg-primary transition-all duration-500 ${isMyRow ? 'h-full shadow-[0_0_8px_var(--p)]' : 'h-0 group-hover/row:h-full'}`} />
                     <div className={`avatar shrink-0 transition-all duration-500 group-hover/row:scale-110 ${isMyRow ? 'ring-2 ring-primary ring-offset-2 ring-offset-base-100 rounded-2xl' : ''}`}>
@@ -155,7 +156,6 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
                     </div>
                   </td>
 
-                  {/* Celdas de Días */}
                   {weekDays.map(day => {
                     const dateStr = day.format('YYYY-MM-DD');
                     const presence = user.presences.find(p => p.date === dateStr);

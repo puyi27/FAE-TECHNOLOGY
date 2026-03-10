@@ -210,7 +210,7 @@ export default function App() {
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
                     <span className="text-4xl mb-2 flex items-center justify-center">{getCategoryIcon(cat.icon)}</span>
-                    {/* 🚀 LE PASAMOS LA 't' A LA FUNCIÓN AQUÍ TAMBIÉN */}
+
                     <span className="text-xs font-bold text-base-content mt-1 text-center">
                       {getDynamicCategoryName(cat, i18n.language, t)}
                     </span>

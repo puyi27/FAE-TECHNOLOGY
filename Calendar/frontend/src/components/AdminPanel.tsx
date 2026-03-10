@@ -150,7 +150,7 @@ export default function AdminPanel() {
             <PersonAddIcon className="text-primary" fontSize="large" /> {t('admin.users')}
           </h2>
           <button onClick={() => handleOpenUserModal()} className="btn btn-primary btn-md rounded-2xl font-bold shadow-lg shadow-primary/20">
-            <AddIcon /> {t('admin.add_user')}
+             {t('admin.add_user')}
           </button>
         </div>
         <div className="overflow-x-auto bg-base-100 rounded-[32px] border border-base-300 shadow-sm">
@@ -172,7 +172,10 @@ export default function AdminPanel() {
                           <img src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.alias || user.full_name || 'U')}&background=random&color=fff`} alt={user.alias} className="object-cover w-full h-full" />
                         </div>
                       </div>
-                      <div><div className="font-bold">{user.full_name}</div><div className="text-xs opacity-50">{user.email || t('admin.no_email')}</div></div>
+                      <div>
+                        <div className="font-bold">{user.full_name}</div>
+                        <div className="text-xs opacity-50">{user.email || t('admin.no_email')}</div>
+                      </div>
                     </div>
                   </td>
                   <td>
@@ -195,7 +198,7 @@ export default function AdminPanel() {
             <CategoryIcon className="text-secondary" fontSize="large" /> {t('admin.categories')}
           </h2>
           <button onClick={() => handleOpenCategoryModal()} className="btn btn-secondary btn-md rounded-2xl font-bold shadow-lg shadow-secondary/20">
-             <AddIcon /> {t('admin.add_category')}
+             {t('admin.add_category')}
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -207,7 +210,7 @@ export default function AdminPanel() {
                 </div>
                 <div>
                   <h3 className="font-black text-lg uppercase tracking-tight">
-                    {/* 🚀 Pasamos la función 't' como tercer parámetro */}
+
                     {getDynamicCategoryName(cat, i18n.language, t)}
                   </h3>
                   <span className="text-xs font-mono opacity-40">ID: #{cat.id_category}</span>
@@ -234,7 +237,7 @@ export default function AdminPanel() {
                     {t('admin.cat_name_base')}
                   </span>
                 </label>
-                {/* 🚀 Placeholder base */}
+
                 <input 
                   type="text" 
                   placeholder={t('admin.cat_ph_base')} 
@@ -243,7 +246,7 @@ export default function AdminPanel() {
                   onChange={(e) => setCategoryFormData({...categoryFormData, name: e.target.value})} 
                   required 
                 />
-                {/* 🚀 Texto de ayuda traducido */}
+
                 <p className="text-[10px] mt-2 opacity-40 px-1">
                   {t('admin.cat_help_text')}
                 </p>
@@ -256,7 +259,7 @@ export default function AdminPanel() {
                       {t('admin.cat_name_en')}
                     </span>
                   </label>
-                  {/* 🚀 Placeholder Inglés */}
+
                   <input 
                     type="text" 
                     placeholder={t('admin.cat_ph_en')} 
@@ -271,7 +274,7 @@ export default function AdminPanel() {
                       {t('admin.cat_name_es')}
                     </span>
                   </label>
-                  {/* 🚀 Placeholder Español */}
+
                   <input 
                     type="text" 
                     placeholder={t('admin.cat_ph_es')} 
@@ -316,14 +319,14 @@ export default function AdminPanel() {
                 <label className="label pb-1">
                   <span className="label-text font-bold uppercase tracking-widest opacity-60 text-[10px]">{t('admin.full_name')}</span>
                 </label>
-                {/* 🚀 Placeholder Usuario Nombre */}
+
                 <input type="text" required placeholder={t('admin.user_ph_name')} className="input input-bordered w-full rounded-2xl bg-base-200/50" value={userFormData.full_name} onChange={e => setUserFormData({ ...userFormData, full_name: e.target.value })} />
               </div>
               <div className="form-control">
                 <label className="label pb-1">
                   <span className="label-text font-bold uppercase tracking-widest opacity-60 text-[10px]">{t('admin.email')}</span>
                 </label>
-                {/* 🚀 Placeholder Usuario Email */}
+
                 <input type="email" placeholder={t('admin.user_ph_email')} className="input input-bordered w-full rounded-2xl bg-base-200/50" value={userFormData.email} onChange={e => setUserFormData({ ...userFormData, email: e.target.value })} />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -331,14 +334,14 @@ export default function AdminPanel() {
                   <label className="label pb-1">
                     <span className="label-text font-bold uppercase tracking-widest opacity-60 text-[10px]">{t('admin.alias')}</span>
                   </label>
-                  {/* 🚀 Placeholder Usuario Alias */}
+
                   <input type="text" maxLength={10} placeholder={t('admin.user_ph_alias')} className="input input-bordered w-full rounded-2xl bg-base-200/50" value={userFormData.alias} onChange={e => setUserFormData({ ...userFormData, alias: e.target.value })} />
                 </div>
                 <div className="form-control">
                   <label className="label pb-1">
                     <span className="label-text font-bold uppercase tracking-widest opacity-60 text-[10px]">{t('admin.phone')}</span>
                   </label>
-                  {/* 🚀 Placeholder Usuario Teléfono */}
+
                   <input type="tel" placeholder={t('admin.user_ph_phone')} className="input input-bordered w-full rounded-2xl bg-base-200/50" value={userFormData.phoneNumber} onChange={e => setUserFormData({ ...userFormData, phoneNumber: e.target.value })} />
                 </div>
               </div>
@@ -347,7 +350,7 @@ export default function AdminPanel() {
                   <label className="label pb-1">
                     <span className="label-text font-bold uppercase tracking-widest opacity-60 text-[10px]">{t('admin.profession')}</span>
                   </label>
-                  {/* 🚀 Placeholder Usuario Profesión */}
+
                   <input type="text" placeholder={t('admin.user_ph_work')} className="input input-bordered w-full rounded-2xl bg-base-200/50" value={userFormData.work} onChange={e => setUserFormData({ ...userFormData, work: e.target.value })} />
                 </div>
                 <div className="form-control">

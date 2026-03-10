@@ -7,7 +7,7 @@ import SickIcon from '@mui/icons-material/Sick';
 import LuggageIcon from '@mui/icons-material/Luggage';
 import AddIcon from '@mui/icons-material/Add'; 
 
-// 🚀 FUNCIÓN ACTUALIZADA: Recibe 't' y lee el JSON para las categorías antiguas
+
 export const getDynamicCategoryName = (cat: any, currentLang: string, t: any) => {
   if (!cat) return '';
   
@@ -56,7 +56,7 @@ export const DayCell = ({ presence, onAdd, isEditable }: DayCellProps) => {
             {getCategoryIcon(presence.categories?.icon)}
           </span>
           <span className="text-[10px] text-base-content/60 font-black mt-1 text-center uppercase tracking-widest leading-tight">
-            {/* 🚀 LE PASAMOS LA 't' AQUÍ PARA QUE TRADUZCA EL TEXTO VISIBLE */}
+
             {getDynamicCategoryName(presence.categories, i18n.language, t)}
           </span>
         </div>
