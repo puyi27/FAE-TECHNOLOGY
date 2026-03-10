@@ -7,11 +7,12 @@
   "admin": { "users": "USERS", "categories": "CATEGORIES", "add_user": "+ USER", "add_category": "+ CATEGORY", "photo": "Photo", "name": "Name", "phone": "Phone", "role": "Role", "actions": "Actions", "icon": "Icon", "no_email": "No email", "employee": "Employee", "edit_user": "Edit collaborator", "new_user": "New collaborator", "full_name": "Full Name", "email": "Email", "alias": "Alias", "profession": "Profession", "permissions": "Permissions", "user_standard": "Standard User", "user_admin": "Administrator", "cancel": "Cancel", "save": "Save", "create": "Create", "edit_category": "Edit category", "new_category": "New category", "category_name": "Category Name", "confirm_del_user": "Are you sure you want to delete the user", "confirm_del_cat": "Are you sure you want to delete the category", "err_server": "Server error.", "err_network": "Network error." },
   "daycell": { "status": "Status", "click_add": "Click to add" },
   "categories_list": {
-    "Smart Working": "Remote Work",
-    "Ufficio": "In Office",
-    "Ferie": "On Vacation",
+    "Casa": "Work from Home",
+    "Ferie": "Vacation",
     "Malattia": "Sick Leave",
-    "Trasferta": "Business Trip",
-    "Cliente": "At Client Site"
+    "Ufficio Kilometro Rosso": "Kilometro Rosso Office",
+    "Ufficie Albino": "Albino Office",
+    "Ufficie Gazzaniga": "Gazzaniga Office",
+    "Businesses Travel": "Business Travel"
   }
 }

@@ -5,8 +5,8 @@ import isoWeek from 'dayjs/plugin/isoWeek';
 import { useTranslation } from 'react-i18next'; 
 import { type User, type Presence } from '../types';
 import RetroGrid from './RetroGrid';
-import { getCategoryIcon } from './DayCell'; // Reutilizamos la función de traducción
 
+// --- ICONOS DE MATERIAL UI ---
 import DoNotDisturbOnTotalSilenceIcon from '@mui/icons-material/DoNotDisturbOnTotalSilence';
 import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction';
 import BeachAccessIcon from '@mui/icons-material/BeachAccess';
@@ -14,6 +14,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import HomeWorkIcon from '@mui/icons-material/HomeWork';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import BusinessIcon from '@mui/icons-material/Business';
+import SickIcon from '@mui/icons-material/Sick';
+import LuggageIcon from '@mui/icons-material/Luggage';
 import AddIcon from '@mui/icons-material/Add';
 
 dayjs.extend(isoWeek);
@@ -28,10 +31,8 @@ interface ProfilePageProps {
 export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }: ProfilePageProps) => {
   const { t, i18n } = useTranslation(); 
   const { id_user } = useParams();
-  
   const user = users.find(u => u.id_user === Number(id_user));
   const isMyProfile = user?.id_user === currentUser.id_user;
-  
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -47,7 +48,6 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
   if (users.length === 0) return <div className="flex h-96 items-center justify-center"><span className="loading loading-dots loading-lg text-primary"></span></div>;
   if (!user) return <Navigate to="/" />;
 
-  // Cálculos para el grid mensual
   const startOfMonth = currentDate.startOf('month');
   const daysInMonth = currentDate.daysInMonth();
   const blanksCount = startOfMonth.isoWeekday() - 1;
@@ -56,27 +56,37 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
   const dayLabels = t('profile.days', { returnObjects: true }) as string[];
 
   const handleSaveProfile = () => {
-    const finalAvatar = formData.avatar.trim() === '' ? `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.alias)}&background=random` : formData.avatar;
+    const isEmpty = formData.avatar.trim() === '';
+    const finalAvatar = isEmpty ? `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.alias)}&background=random` : formData.avatar;
     if (onUpdateUser) onUpdateUser({ ...user, ...formData, avatar: finalAvatar });
     setFormData(prev => ({ ...prev, avatar: finalAvatar }));
     setIsEditing(false);
   };
 
+  const getCategoryIcon = (iconStr?: string | null) => {
+    switch (iconStr) {
+      case '🏢': return <BusinessIcon fontSize="inherit" />;
+      case '🏠': return <HomeWorkIcon fontSize="inherit" />;
+      case '🏖️': return <BeachAccessIcon fontSize="inherit" />;
+      case '🤒': return <SickIcon fontSize="inherit" />;
+      case '💼': return <LuggageIcon fontSize="inherit" />;
+      default: return iconStr || '📍';
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 relative">
-      
-      {/* --- TARJETA DE PERFIL --- */}
       <div className="bg-base-100/40 backdrop-blur-xl rounded-[2.5rem] p-8 shadow-2xl border border-base-300 flex flex-wrap items-center gap-8 mb-12 relative overflow-hidden animate-fade-in-up">
         <RetroGrid className="opacity-40 mix-blend-overlay" />
         <div className="absolute top-0 right-0 p-8 flex items-center gap-3 z-20">
           {isMyProfile && (
-            <button onClick={() => { setFormData({ alias: user.alias, avatar: user.avatar || '', description: user.description || '', status: user.status || 'Disponibile' }); setIsEditing(true); }} className="btn btn-primary btn-sm rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg hover:scale-105 transition-transform gap-1">
+            <button onClick={() => { setFormData({ alias: user?.alias || '', avatar: user?.avatar || '', description: user?.description || '', status: user?.status || 'Disponibile' }); setIsEditing(true); }} 
+              className="btn btn-primary btn-sm rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg hover:scale-105 transition-transform gap-1">
               <EditIcon fontSize="small"/> {t('profile.edit')}
             </button>
           )}
           <Link to="/" className="btn btn-circle btn-ghost hover:rotate-90 transition-transform">✕</Link>
         </div>
-        
         <div className="relative group z-10">
           <div className="avatar">
             <div className="w-28 h-28 rounded-[2rem] ring ring-primary ring-offset-base-100 ring-offset-4 shadow-2xl bg-base-300">
@@ -99,28 +109,46 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
           <h2 className="text-5xl font-black tracking-tighter text-base-content mb-2">{user.full_name || user.alias}</h2>
           {user.description && <p className="text-sm font-medium text-base-content/70 italic mb-3 max-w-md">"{user.description}"</p>}
           <div className="flex gap-2">
-            <span className="badge border-none bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] animate-bg-gradient text-white font-bold px-4 py-3 uppercase text-[10px] tracking-widest shadow-lg">{user.work || t('profile.team_member')}</span>
+            <span className="badge border-none bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] animate-bg-gradient text-white font-bold px-4 py-3 uppercase text-[10px] tracking-widest shadow-lg">
+              {user.work || t('profile.team_member')}
+            </span>
             {isMyProfile && <span className="badge badge-secondary font-bold px-4 py-3 uppercase text-[10px] tracking-widest text-white shadow-sm">{t('profile.you')}</span>}
           </div>
         </div>
       </div>
 
-      {/* --- NAVEGACIÓN MENSUAL --- */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-10 px-4 gap-4 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-        <button onClick={() => setCurrentDate(dayjs())} className="btn bg-base-100/50 backdrop-blur-md shadow-sm border border-base-300 rounded-2xl px-8 font-black uppercase text-xs tracking-widest hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all w-full sm:w-auto order-2 sm:order-1">
+        
+        <button 
+          onClick={() => setCurrentDate(dayjs())} 
+          className="btn bg-base-100/50 backdrop-blur-md shadow-sm border border-base-300 rounded-2xl px-8 font-black uppercase text-xs tracking-widest hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all w-full sm:w-auto order-2 sm:order-1"
+        >
           {t('profile.today')}
         </button>
+
         <div className="flex items-center gap-2 bg-base-100/50 backdrop-blur-md shadow-xl border border-base-300 p-2 rounded-[2rem] w-full sm:w-auto justify-between order-1 sm:order-2">
-          <button onClick={() => setCurrentDate(c => c.subtract(1, 'month'))} className="btn btn-circle btn-ghost text-xl hover:bg-primary/10 hover:text-primary transition-all"><KeyboardArrowLeftIcon/></button>
+          <button 
+            onClick={() => setCurrentDate(c => c.subtract(1, 'month'))} 
+            className="btn btn-circle btn-ghost text-xl hover:bg-primary/10 hover:text-primary transition-all"
+          >
+            <KeyboardArrowLeftIcon/>
+          </button>
+          
           <h3 className="text-2xl sm:text-3xl font-black capitalize tracking-tight text-base-content/90 min-w-[180px] text-center px-4">
             {currentDate.locale(i18n.language).format('MMMM')} <span className="text-primary tracking-tighter">{currentDate.locale(i18n.language).format('YYYY')}</span>
           </h3>
-          <button onClick={() => setCurrentDate(c => c.add(1, 'month'))} className="btn btn-circle btn-ghost text-xl hover:bg-primary/10 hover:text-primary transition-all"><KeyboardArrowRightIcon/></button>
+
+          <button 
+            onClick={() => setCurrentDate(c => c.add(1, 'month'))} 
+            className="btn btn-circle btn-ghost text-xl hover:bg-primary/10 hover:text-primary transition-all"
+          >
+            <KeyboardArrowRightIcon/>
+          </button>
         </div>
+        
         <div className="hidden sm:block w-[100px] order-3"></div>
       </div>
 
-      {/* --- GRID DEL CALENDARIO --- */}
       <div className="bg-base-100/30 backdrop-blur-md rounded-[3rem] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.1)] border border-base-300 overflow-hidden animate-fade-in-up" style={{ animationDelay: '200ms' }}>
         <div className="grid grid-cols-7 bg-base-200/60 border-b border-base-300">
           {dayLabels.map(d => <div key={d} className="py-6 text-center text-[11px] font-black opacity-30 uppercase tracking-[0.2em]">{d}</div>)}
@@ -143,16 +171,23 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
                 <div className="absolute inset-0 flex flex-col items-center justify-center pt-6">
                   {presence ? (
                     <div className={`flex flex-col items-center gap-2 group/icon transition-all duration-500 ${isMyProfile ? 'cursor-pointer hover:scale-110' : 'opacity-80'}`} onClick={() => isMyProfile && onAddPresence(user.id_user, dateStr)}>
+                      
+
                       <div className="p-3 rounded-3xl bg-base-100 shadow-md border border-base-200 group-hover/icon:shadow-xl group-hover/icon:border-primary/30 transition-all text-4xl text-base-content/80 flex items-center justify-center drop-shadow-sm">
                         {getCategoryIcon(presence.categories?.icon)}
                       </div>
+
                       <span className="text-[10px] font-black uppercase tracking-widest text-base-content/50 group-hover/icon:text-primary transition-colors">{presence.categories?.name}</span>
                     </div>
                   ) : (
+
                     isMyProfile && !isWeekend && (
-                      <div onClick={() => onAddPresence(user.id_user, dateStr)} className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
-                        <div className="w-10 h-10 rounded-full border-2 border-dashed border-primary/40 flex items-center justify-center text-primary/50 group-hover:border-primary group-hover:text-primary transition-all bg-base-100/50 shadow-inner scale-90 group-hover:scale-100">
-                          <AddIcon fontSize="small" />
+                      <div 
+                        onClick={() => onAddPresence(user.id_user, dateStr)} 
+                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
+                      >
+                        <div className="w-12 h-12 rounded-full border-2 border-dashed border-primary/40 flex items-center justify-center text-primary/50 group-hover:border-primary group-hover:text-primary transition-all bg-base-100/50 shadow-inner scale-90 group-hover:scale-100">
+                          <AddIcon fontSize="medium" />
                         </div>
                       </div>
                     )
@@ -164,7 +199,6 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
         </div>
       </div>
 
-      {/* --- MODAL EDICIÓN --- */}
       {isEditing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
           <div className="absolute inset-0 bg-base-300/80 backdrop-blur-md transition-opacity" onClick={() => setIsEditing(false)}></div>
@@ -183,6 +217,7 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="form-control"><label className="label py-1"><span className="label-text font-bold text-[10px] uppercase tracking-widest opacity-60">{t('profile.name_alias')}</span></label><input type="text" className="input input-bordered bg-base-200/50 rounded-2xl focus:ring-2 focus:ring-primary/20 font-bold" value={formData.alias} onChange={(e) => setFormData({ ...formData, alias: e.target.value })} /></div>
+                
                 <div className="form-control"><label className="label py-1"><span className="label-text font-bold text-[10px] uppercase tracking-widest opacity-60">{t('profile.status')}</span></label>
                   <select className="select select-bordered bg-base-200/50 rounded-2xl focus:ring-2 focus:ring-primary/20 font-bold" value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })}>
                     <option value="Disponibile">{t('profile.status_available')}</option>
@@ -191,6 +226,7 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
                     <option value="In Ferie">{t('profile.status_vacation')}</option>
                   </select>
                 </div>
+
               </div>
               <div className="form-control"><label className="label py-1"><span className="label-text font-bold text-[10px] uppercase tracking-widest opacity-60">{t('profile.bio')}</span><span className="label-text-alt opacity-40">{formData.description.length}/100</span></label><textarea className="textarea textarea-bordered bg-base-200/50 rounded-2xl focus:ring-2 focus:ring-primary/20 resize-none h-24" placeholder={t('profile.bio_placeholder')} maxLength={100} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}></textarea></div>
             </div>

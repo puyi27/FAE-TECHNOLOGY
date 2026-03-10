@@ -7,11 +7,12 @@
   "admin": { "users": "USUARIOS", "categories": "CATEGORÍAS", "add_user": "+ USUARIO", "add_category": "+ CATEGORÍA", "photo": "Foto", "name": "Nombre", "phone": "Teléfono", "role": "Rol", "actions": "Acciones", "icon": "Icono", "no_email": "Sin email", "employee": "Empleado", "edit_user": "Editar colaborador", "new_user": "Nuevo colaborador", "full_name": "Nombre Completo", "email": "Email", "alias": "Alias", "profession": "Profesión", "permissions": "Permisos", "user_standard": "Usuario Estándar", "user_admin": "Administrador", "cancel": "Cancelar", "save": "Guardar", "create": "Crear", "edit_category": "Editar categoría", "new_category": "Nueva categoría", "category_name": "Nombre Categoría", "confirm_del_user": "Seguro de eliminar al usuario", "confirm_del_cat": "Seguro de eliminar la categoría", "err_server": "Error del servidor.", "err_network": "Error de red." },
   "daycell": { "status": "Estado", "click_add": "Clica para añadir" },
   "categories_list": {
-    "Smart Working": "Teletrabajo",
-    "Ufficio": "En Oficina",
+    "Casa": "Teletrabajo",
     "Ferie": "Vacaciones",
-    "Malattia": "Enfermedad",
-    "Trasferta": "Viaje de Negocios",
-    "Cliente": "En Cliente"
+    "Malattia": "Enfermo",
+    "Ufficio Kilometro Rosso": "Oficina de Kilometro Rosso",
+    "Ufficie Albino": "Oficina de Albino",
+    "Ufficie Gazzaniga": "Oficina de Gazzaniga",
+    "Businesses Travel": "Viaje de trabajo"
   }
 }

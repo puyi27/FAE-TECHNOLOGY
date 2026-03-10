@@ -10,6 +10,7 @@ import { type User } from '../types';
 import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
 dayjs.extend(isoWeek);
 
@@ -110,13 +111,13 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
                         <div className={`text-lg font-black tracking-tighter transition-colors ${sortConfig.key === 'alias' ? 'text-primary' : 'text-base-content'}`}>{t('calendar.personal_data')}</div>
                      </div>
                      <div className={`transition-all duration-500 transform ${sortConfig.key === 'alias' ? 'opacity-100 scale-110' : 'opacity-0 scale-50'}`}>
-                       <span className="inline-block font-black text-xl text-primary transform transition-transform duration-500" style={{ transform: sortConfig.direction === 'desc' ? 'rotate(180deg)' : 'rotate(0deg)' }}>↑</span>
+                       <span className="inline-block font-black text-xl text-primary transform transition-transform duration-500" style={{ transform: sortConfig.direction === 'desc' ? 'rotate(180deg)' : 'rotate(0deg)' }}><ArrowUpwardIcon/></span>
                      </div>
                    </div>
                    <div onClick={() => requestSort('work')} className={`px-5 py-4 cursor-pointer hover:bg-primary/5 transition-all flex items-center justify-between group/sort ${sortConfig.key === 'work' ? 'bg-primary/10' : ''}`}>
                      <span className={`text-[11px] font-black uppercase tracking-widest transition-all ${sortConfig.key === 'work' ? 'text-primary' : 'text-base-content/70'}`}>{t('calendar.order_role')}</span>
                      <div className={`transition-all duration-500 transform ${sortConfig.key === 'work' ? 'opacity-100 scale-110' : 'opacity-0 scale-50'}`}>
-                        <span className="inline-block font-black text-primary transform transition-transform duration-500" style={{ transform: sortConfig.direction === 'desc' ? 'rotate(180deg)' : 'rotate(0deg)' }}>↑</span>
+                        <span className="inline-block font-black text-primary transform transition-transform duration-500" style={{ transform: sortConfig.direction === 'desc' ? 'rotate(180deg)' : 'rotate(0deg)' }}><ArrowUpwardIcon/></span>
                      </div>
                    </div>
                 </div>
@@ -137,7 +138,7 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
               return (
                 <tr key={user.id_user} className={`group/row transition-all duration-300 ${isMyRow ? 'bg-primary/10 hover:bg-primary/20 shadow-sm relative z-10' : `hover:bg-primary/5 ${index % 2 !== 0 ? 'bg-base-200/40' : 'bg-base-100'}`}`}>
                   
-                  {/* Celda de Usuario */}
+                  
                   <td className="p-6 flex items-center gap-5 border-r-2 border-base-300 bg-inherit cursor-pointer group/cell relative z-10" onClick={() => navigate(`/profile/${user.id_user}`)}>
                     <div className={`absolute left-0 top-0 w-1.5 bg-primary transition-all duration-500 ${isMyRow ? 'h-full shadow-[0_0_8px_var(--p)]' : 'h-0 group-hover/row:h-full'}`} />
                     <div className={`avatar shrink-0 transition-all duration-500 group-hover/row:scale-110 ${isMyRow ? 'ring-2 ring-primary ring-offset-2 ring-offset-base-100 rounded-2xl' : ''}`}>

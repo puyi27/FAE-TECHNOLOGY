@@ -203,7 +203,7 @@ export default function App() {
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
                     <span className="text-4xl mb-2 flex items-center justify-center">{getCategoryIcon(cat.icon)}</span>
-                    <span className="text-xs font-bold text-base-content mt-1 text-center">{cat.name}</span>
+                    <span className="text-xs font-bold text-base-content mt-1 text-center">{t(`categories_list.${cat.name}`, { defaultValue: cat.name })}</span>
                   </button>
                 ))}
               </div>
