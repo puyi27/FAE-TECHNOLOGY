@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { type User, type Presence } from '../types';
 import RetroGrid from './RetroGrid';
 
-// --- ICONOS DE MATERIAL UI ---
 import DoNotDisturbOnTotalSilenceIcon from '@mui/icons-material/DoNotDisturbOnTotalSilence';
 import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction';
 import BeachAccessIcon from '@mui/icons-material/BeachAccess';
@@ -20,6 +19,14 @@ import LuggageIcon from '@mui/icons-material/Luggage';
 import AddIcon from '@mui/icons-material/Add';
 
 dayjs.extend(isoWeek);
+
+// 🚀 Helper de traducción dinámica
+export const getDynamicCategoryName = (cat: any, currentLang: string) => {
+  if (!cat) return '';
+  if (currentLang === 'es' && cat.name_es) return cat.name_es;
+  if (currentLang === 'en' && cat.name_en) return cat.name_en;
+  return cat.name;
+};
 
 interface ProfilePageProps {
   users: User[];
@@ -172,20 +179,17 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
                   {presence ? (
                     <div className={`flex flex-col items-center gap-2 group/icon transition-all duration-500 ${isMyProfile ? 'cursor-pointer hover:scale-110' : 'opacity-80'}`} onClick={() => isMyProfile && onAddPresence(user.id_user, dateStr)}>
                       
-
                       <div className="p-3 rounded-3xl bg-base-100 shadow-md border border-base-200 group-hover/icon:shadow-xl group-hover/icon:border-primary/30 transition-all text-4xl text-base-content/80 flex items-center justify-center drop-shadow-sm">
                         {getCategoryIcon(presence.categories?.icon)}
                       </div>
 
-                      <span className="text-[10px] font-black uppercase tracking-widest text-base-content/50 group-hover/icon:text-primary transition-colors">{presence.categories?.name}</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-base-content/50 group-hover/icon:text-primary transition-colors text-center">
+                        {getDynamicCategoryName(presence.categories, i18n.language)}
+                      </span>
                     </div>
                   ) : (
-
                     isMyProfile && !isWeekend && (
-                      <div 
-                        onClick={() => onAddPresence(user.id_user, dateStr)} 
-                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
-                      >
+                      <div onClick={() => onAddPresence(user.id_user, dateStr)} className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
                         <div className="w-12 h-12 rounded-full border-2 border-dashed border-primary/40 flex items-center justify-center text-primary/50 group-hover:border-primary group-hover:text-primary transition-all bg-base-100/50 shadow-inner scale-90 group-hover:scale-100">
                           <AddIcon fontSize="medium" />
                         </div>

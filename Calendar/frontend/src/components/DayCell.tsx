@@ -7,6 +7,14 @@ import SickIcon from '@mui/icons-material/Sick';
 import LuggageIcon from '@mui/icons-material/Luggage';
 import AddIcon from '@mui/icons-material/Add'; 
 
+// 🚀 Helper de traducción dinámica
+export const getDynamicCategoryName = (cat: any, currentLang: string) => {
+  if (!cat) return '';
+  if (currentLang === 'es' && cat.name_es) return cat.name_es;
+  if (currentLang === 'en' && cat.name_en) return cat.name_en;
+  return cat.name;
+};
+
 interface DayCellProps {
   presence?: Presence;
   onAdd: () => void;
@@ -14,7 +22,7 @@ interface DayCellProps {
 }
 
 export const DayCell = ({ presence, onAdd, isEditable }: DayCellProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   const getCategoryIcon = (iconStr?: string | null) => {
     switch (iconStr) {
@@ -34,7 +42,7 @@ export const DayCell = ({ presence, onAdd, isEditable }: DayCellProps) => {
         ${isEditable ? 'cursor-pointer hover:bg-base-200' : 'cursor-default'}`}
       title={
         presence 
-          ? `${t('daycell.status')}: ${t(`categories_list.${presence.categories?.name}`, { defaultValue: presence.categories?.name })}` 
+          ? `${t('daycell.status')}: ${getDynamicCategoryName(presence.categories, i18n.language)}` 
           : undefined
       }
     >
@@ -43,16 +51,15 @@ export const DayCell = ({ presence, onAdd, isEditable }: DayCellProps) => {
           <span className="text-3xl flex items-center justify-center text-base-content/80 drop-shadow-sm">
             {getCategoryIcon(presence.categories?.icon)}
           </span>
-          {/* 🚀 TRADUCCIÓN DINÁMICA DEL NOMBRE AQUÍ */}
           <span className="text-[10px] text-base-content/60 font-black mt-1 text-center uppercase tracking-widest leading-tight">
-            {t(`categories_list.${presence.categories?.name}`, { defaultValue: presence.categories?.name })}
+            {getDynamicCategoryName(presence.categories, i18n.language)}
           </span>
         </div>
       ) : (
         isEditable && (
           <div className="opacity-0 group-hover/cell:opacity-100 transition-opacity duration-300">
-            <div className="w-10 h-10 rounded-full border-2 border-dashed border-primary/40 flex items-center justify-center text-primary/50 group-hover/cell:border-primary group-hover/cell:text-primary group-hover/cell:bg-primary/5">
-              <AddIcon />
+            <div className="w-10 h-10 rounded-full border-2 border-dashed border-primary/40 flex items-center justify-center text-primary/50 group-hover/cell:border-primary group-hover/cell:text-primary transition-all bg-base-100/50 shadow-inner scale-90 group-hover/cell:scale-100">
+              <AddIcon fontSize="small" />
             </div>
           </div>
         )

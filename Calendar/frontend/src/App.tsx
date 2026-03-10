@@ -14,12 +14,21 @@ import { ProfilePage } from './components/ProfilePage';
 import { LoginPage } from './components/LoginPage';
 
 // 1. IMPORTAMOS LOS ICONOS DE MATERIAL UI
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import BusinessIcon from '@mui/icons-material/Business';
 import HomeWorkIcon from '@mui/icons-material/HomeWork';
 import BeachAccessIcon from '@mui/icons-material/BeachAccess';
 import SickIcon from '@mui/icons-material/Sick';
 import LuggageIcon from '@mui/icons-material/Luggage';
 import DeleteIcon from '@mui/icons-material/Delete';
+
+// 🚀 AÑADIMOS EL HELPER DE TRADUCCIÓN DINÁMICA FUERA DEL COMPONENTE
+export const getDynamicCategoryName = (cat: any, currentLang: string) => {
+  if (!cat) return '';
+  if (currentLang === 'es' && cat.name_es) return cat.name_es;
+  if (currentLang === 'en' && cat.name_en) return cat.name_en;
+  return cat.name;
+};
 
 export default function App() {
   const { t, i18n } = useTranslation(); 
@@ -188,7 +197,7 @@ export default function App() {
             <div className="modal-box relative bg-base-100 shadow-2xl modal-smooth">
               <button onClick={() => setModalData(null)} className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 transition-transform hover:rotate-90">✕</button>
               
-              <h3 className="font-bold text-lg mb-6 border-b border-base-200 pb-2">📅 {t('app.date')}: {modalData.date}</h3>
+              <h3 className="font-bold text-lg mb-6 border-b border-base-200 pb-2"><CalendarMonthIcon/> {t('app.date')}: {modalData.date}</h3>
 
               <div className="grid grid-cols-3 gap-3 mb-6">
                 {categories.map((cat, index) => (
@@ -203,7 +212,10 @@ export default function App() {
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
                     <span className="text-4xl mb-2 flex items-center justify-center">{getCategoryIcon(cat.icon)}</span>
-                    <span className="text-xs font-bold text-base-content mt-1 text-center">{t(`categories_list.${cat.name}`, { defaultValue: cat.name })}</span>
+                    {/* 🚀 USAMOS LA TRADUCCIÓN DINÁMICA DIRECTAMENTE */}
+                    <span className="text-xs font-bold text-base-content mt-1 text-center">
+                      {getDynamicCategoryName(cat, i18n.language)}
+                    </span>
                   </button>
                 ))}
               </div>
