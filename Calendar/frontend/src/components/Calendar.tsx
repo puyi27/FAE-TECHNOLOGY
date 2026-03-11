@@ -293,6 +293,7 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
                     const isWeekend = day.isoWeekday() >= 6;
                     
                     return (
+                      
                       <td 
                         key={dateStr} 
                         className={`p-0 border-r border-base-300 relative transition-all duration-300 ${isWeekend ? 'bg-base-200/60' : ''} ${day.isSame(dayjs(), 'day') ? 'bg-primary/5' : ''} ${canEdit ? 'hover:bg-base-200' : ''}`}
