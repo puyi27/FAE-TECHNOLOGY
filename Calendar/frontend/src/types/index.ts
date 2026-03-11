@@ -27,4 +27,6 @@ export interface User {
   avatar: string | null | undefined;
   status: string;
   presences: Presence[];
+  theme?: string;     
+  language?: string;
 }
