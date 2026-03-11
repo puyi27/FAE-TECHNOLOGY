@@ -1,3 +1,2 @@
-2026/03/11-15:35:18.355 5b18 Reusing MANIFEST C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\EntityExtractionAssetStore.db/MANIFEST-000001
-2026/03/11-15:35:18.366 5b18 Recovering log #3
-2026/03/11-15:35:18.370 5b18 Reusing old log C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\EntityExtractionAssetStore.db/000003.log 
+2026/03/11-15:42:27.547 64b4 Creating DB C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\EntityExtractionAssetStore.db since it was missing.
+2026/03/11-15:42:27.565 64b4 Reusing MANIFEST C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\EntityExtractionAssetStore.db/MANIFEST-000001
