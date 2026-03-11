@@ -1,215 +1,190 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import pg from 'pg'; // Importación completa del paquete
+import pg from 'pg';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import whatsappPkg from 'whatsapp-web.js';
+import qrcode from 'qrcode-terminal';
+import cron from 'node-cron';
 
-const { Pool } = pg; // Extraemos el Pool manualmente
+const { Pool } = pg;
+const { Client, LocalAuth } = whatsappPkg;
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const SECRET_KEY = process.env.JWT_SECRET || 'fae_technology_super_secret_key_2026';
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// --- 1. OBTENER TODOS LOS USUARIOS Y SUS PRESENCIAS ---
+// --------------------------------------------------------
+// 1. INICIALIZACIÓN DEL BOT DE WHATSAPP
+// --------------------------------------------------------
+const whatsapp = new Client({
+  authStrategy: new LocalAuth(),
+  puppeteer: {
+    executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+    headless: false, // Cámbialo a 'true' cuando lo subas a un servidor real
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  },
+});
+
+let isBotReady = false;
+
+whatsapp.on('qr', (qr) => {
+  console.log('📱 ¡NUEVO QR GENERADO!');
+  qrcode.generate(qr, { small: true });
+});
+
+whatsapp.on('ready', () => {
+  console.log('✅ Bot de WhatsApp conectado.');
+  isBotReady = true;
+});
+
+whatsapp.on('disconnected', () => {
+  console.log('❌ Bot desconectado.');
+  isBotReady = false;
+});
+
+whatsapp.initialize().catch(err => console.error("Error inicializando WhatsApp:", err));
+
+// --------------------------------------------------------
+// 2. CRON JOB (Notificaciones Automáticas)
+// --------------------------------------------------------
+const GROUP_ID = process.env.WA_GROUP_ID || "";
+const WEB_URL = process.env.WA_WEB_URL || "http://localhost:3000";
+const CRON_TIME = process.env.WA_CRON_SCHEDULE || "40 15 * * 1-5,0";
+
+cron.schedule(CRON_TIME, async () => {
+  if (!isBotReady || !GROUP_ID) {
+    console.log('⏰ Cron: Bot no listo o ID de grupo no configurado.');
+    return;
+  }
+
+  try {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toLocaleDateString('it-IT', { 
+        weekday: 'long', day: 'numeric', month: 'long' 
+    });
+
+    const messaggio = `📢 *PROMEMORIA PRESENZE* 🤖\n\n` +
+                      `Ciao a tutti! Vi ricordiamo di inserire la vostra presenza per domani (*${tomorrowStr}*).\n\n` +
+                      `Accedi qui per aggiornare: \n🔗 ${WEB_URL}\n\n` +
+                      `Grazie! 🚀`;
+
+    await whatsapp.sendMessage(GROUP_ID, messaggio);
+    console.log(`✅ Recordatorio enviado a las ${new Date().toLocaleTimeString()}`);
+    
+  } catch (error) {
+    console.error('❌ Error enviando mensaje de Cron:', error);
+  }
+}, {
+  timezone: "Europe/Rome"
+});
+
+
+// --------------------------------------------------------
+// 3. RUTAS DE LA API (CRUD)
+// --------------------------------------------------------
+
 app.get('/api/users', async (req, res) => {
   const query = `
-    SELECT u.*, 
-    COALESCE(
-      json_agg(
-        json_build_object(
-          'id_presence', p.id_presence,
-          'date', p.date,
-          'categories', json_build_object(
-            'id_category', c.id_category,
-            'name', c.name,
-            'icon', c.icon
-          )
-        )
-      ) FILTER (WHERE p.id_presence IS NOT NULL), '[]'
-    ) as presences
+    SELECT u.*, COALESCE(json_agg(json_build_object(
+      'id_presence', p.id_presence, 'date', p.date,
+      'categories', json_build_object('id_category', c.id_category, 'name', c.name, 'name_en', c.name_en, 'name_es', c.name_es, 'icon', c.icon)
+    )) FILTER (WHERE p.id_presence IS NOT NULL), '[]') as presences
     FROM users u
     LEFT JOIN presences p ON u.id_user = p.id_user
     LEFT JOIN categories c ON p.id_category = c.id_category
-    GROUP BY u.id_user
-    ORDER BY u.full_name ASC;
-  `;
-
-  try {
-    const result = await pool.query(query);
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error al obtener usuarios:", error);
-    res.status(500).json({ error: "Errore caricamento utenti" });
-  }
+    GROUP BY u.id_user ORDER BY u.full_name ASC;`;
+  try { res.json((await pool.query(query)).rows); } 
+  catch (err) { res.status(500).json({ error: "Error users" }); }
 });
 
-// --- 2. OBTENER CATEGORÍAS (Para el Modal) ---
-app.get('/api/categories', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM categories ORDER BY id_category ASC');
-    res.json(result.rows);
-  } catch (error) {
-    res.status(500).json({ error: "Errore caricamento categorie" });
-  }
-});
-
-// --- 3. AÑADIR O ACTUALIZAR PRESENCIA (Upsert SQL) ---
-app.post('/api/presences', async (req, res) => {
-  const { id_user, date, id_category } = req.body;
-
-  // Este query inserta o, si ya existe el usuario y la fecha, actualiza la categoría
-  const query = `
-    INSERT INTO presences (id_user, date, id_category)
-    VALUES ($1, $2, $3)
-    ON CONFLICT (id_user, date) 
-    DO UPDATE SET id_category = EXCLUDED.id_category
-    RETURNING *;
-  `;
-
-  try {
-    const result = await pool.query(query, [id_user, date, id_category]);
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error("Error al guardar presencia:", error);
-    res.status(500).json({ error: "Errore salvataggio presenza" });
-  }
-});
-
-// --- 4. ELIMINAR PRESENCIA ---
-app.delete('/api/presences', async (req, res) => {
-  const { id_user, date } = req.body;
-  try {
-    await pool.query('DELETE FROM presences WHERE id_user = $1 AND date = $2', [id_user, date]);
-    res.json({ message: "Eliminato con successo" });
-  } catch (error) {
-    res.status(500).json({ error: "Errore eliminazione" });
-  }
-});
-
-// --- 5. CREAR USUARIO (POST) ---
 app.post('/api/users', async (req, res) => {
-  const { full_name, phoneNumber, alias, work } = req.body;
-  
+  const { full_name, email, alias, phoneNumber, phone_number, work, role, password } = req.body;
+  const phone = phoneNumber || phone_number || null;
   try {
-    // IMPORTANTE: Mantenemos "phoneNumber" entre comillas por si Postgres es estricto con las mayúsculas
-    const query = `
-      INSERT INTO users (full_name, "phoneNumber", alias, work)
-      VALUES ($1, $2, $3, $4) RETURNING *`;
-      
-    const result = await pool.query(query, [
-      full_name, 
-      phoneNumber || null, 
-      alias || full_name.split(' ')[0].substring(0, 10), 
-      work || 'Dipendente'
-    ]);
-    
+    if (!password) return res.status(400).json({ error: "Password requerida" });
+    const hash = await bcrypt.hash(password, 10);
+    const result = await pool.query(
+      'INSERT INTO users (full_name, email, alias, "phoneNumber", work, role, password) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [full_name, email, alias, phone, work, role, hash]
+    );
     res.json(result.rows[0]);
-  } catch (error) {
-    // Ahora verás exactamente por qué falla Postgres en la consola de tu terminal
-    console.error("🔴 Error real en Postgres (Crear):", error);
-    res.status(500).json({ error: "Errore creazione utente" });
-  }
+  } catch (err) { res.status(500).json({ error: "Error post user" }); }
 });
 
-// --- 6. ACTUALIZAR USUARIO (PUT) ---
-app.put('/api/users/:id_user', async (req, res) => {
-  const { id_user } = req.params;
-  const { full_name, phoneNumber, alias, work } = req.body;
-  
+app.put('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+  const { full_name, email, alias, phoneNumber, phone_number, work, role, password, avatar, description, status, theme, language } = req.body;
+  const phone = phoneNumber || phone_number || null;
+
   try {
-    const query = `
-      UPDATE users 
-      SET full_name = $1, "phoneNumber" = $2, alias = $3, work = $4
-      WHERE id_user = $5 RETURNING *`;
-      
-    const result = await pool.query(query, [
-      full_name, 
-      phoneNumber || null, 
-      alias, 
-      work, 
-      id_user
-    ]);
-    
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Utente non trovato" });
+    let result;
+    if (password && password.trim() !== '') {
+      const hash = await bcrypt.hash(password, 10);
+      result = await pool.query(
+        `UPDATE users SET full_name=$1, email=$2, alias=$3, "phoneNumber"=$4, work=$5, role=$6, avatar=$7, description=$8, status=$9, password=$10, theme=$11, language=$12 WHERE id_user=$13 RETURNING *`,
+        [full_name, email, alias, phone, work, role, avatar, description, status, hash, theme, language, id]
+      );
+    } else {
+      result = await pool.query(
+        `UPDATE users SET full_name=$1, email=$2, alias=$3, "phoneNumber"=$4, work=$5, role=$6, avatar=$7, description=$8, status=$9, theme=$10, language=$11 WHERE id_user=$12 RETURNING *`,
+        [full_name, email, alias, phone, work, role, avatar, description, status, theme, language, id]
+      );
     }
-    
     res.json(result.rows[0]);
-  } catch (error) {
-    console.error("🔴 Error real en Postgres (Actualizar):", error);
-    res.status(500).json({ error: "Errore aggiornamento utente" });
-  }
+  } catch (err) { res.status(500).json({ error: "Error put user" }); }
 });
-// --- 7. ELIMINAR USUARIO (DELETE) ---
-app.delete('/api/users/:id_user', async (req, res) => {
-  const { id_user } = req.params;
-  
-  try {
-    // ⚠️ ATENCIÓN: Si este usuario tiene registros en la tabla "presences", 
-    // y tu base de datos no tiene "ON DELETE CASCADE" configurado, 
-    // Postgres no te dejará borrarlo.
-    
-    // Por si acaso, borramos primero sus presencias asociadas (opcional pero seguro)
-    await pool.query('DELETE FROM presences WHERE id_user = $1', [id_user]);
-    
-    // Ahora sí, borramos al usuario
-    const query = 'DELETE FROM users WHERE id_user = $1 RETURNING *';
-    const result = await pool.query(query, [id_user]);
-    
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Utente non trovato" });
-    }
-    
-    res.json({ message: "Utente eliminato con successo", deletedUser: result.rows[0] });
-  } catch (error) {
-    console.error("🔴 Error real en Postgres (Eliminar):", error);
-    res.status(500).json({ error: "Errore eliminazione utente" });
-  }
+
+app.delete('/api/users/:id', async (req, res) => {
+  try { await pool.query('DELETE FROM users WHERE id_user = $1', [req.params.id]); res.json({ success: true }); } 
+  catch (err) { res.status(500).json({ error: "Error delete user" }); }
 });
-// POST: Crear categoría
+
+app.get('/api/categories', async (req, res) => {
+  try { res.json((await pool.query('SELECT * FROM categories ORDER BY id_category ASC')).rows); } 
+  catch (err) { res.status(500).json({ error: "Error categories" }); }
+});
+
 app.post('/api/categories', async (req, res) => {
-  const { name, icon } = req.body; // 👈 Quitamos description
-  try {
-    const query = `INSERT INTO categories (name, icon) VALUES ($1, $2) RETURNING *`;
-    const result = await pool.query(query, [name, icon]);
-    res.json(result.rows[0]);
-  } catch (error) {
-    res.status(500).json({ error: "Errore creazione" });
-  }
+  try { res.json((await pool.query('INSERT INTO categories (name, name_en, name_es, icon) VALUES ($1, $2, $3, $4) RETURNING *', [req.body.name, req.body.name_en, req.body.name_es, req.body.icon])).rows[0]); } 
+  catch (err) { res.status(500).json({ error: "Error post cat" }); }
 });
 
-// PUT: Actualizar categoría
-app.put('/api/categories/:id_category', async (req, res) => {
-  const { id_category } = req.params;
-  const { name, icon } = req.body; // 👈 Quitamos description
-  try {
-    const query = `UPDATE categories SET name = $1, icon = $2 WHERE id_category = $3 RETURNING *`;
-    const result = await pool.query(query, [name, icon, id_category]);
-    res.json(result.rows[0]);
-  } catch (error) {
-    res.status(500).json({ error: "Errore aggiornamento" });
-  }
+app.put('/api/categories/:id', async (req, res) => {
+  try { res.json((await pool.query('UPDATE categories SET name=$1, name_en=$2, name_es=$3, icon=$4 WHERE id_category=$5 RETURNING *', [req.body.name, req.body.name_en, req.body.name_es, req.body.icon, req.params.id])).rows[0]); } 
+  catch (err) { res.status(500).json({ error: "Error put cat" }); }
 });
 
-// --- ELIMINAR CATEGORÍA (DELETE) ---
-app.delete('/api/categories/:id_category', async (req, res) => {
-  const { id_category } = req.params;
+app.delete('/api/categories/:id', async (req, res) => {
+  try { await pool.query('DELETE FROM categories WHERE id_category = $1', [req.params.id]); res.json({ success: true }); } 
+  catch (err) { res.status(500).json({ error: "Error del cat" }); }
+});
+
+app.post('/api/login', async (req, res) => {
   try {
-    // IMPORTANTE: Primero borramos las presencias asociadas a esta categoría para que Postgres no explote por las llaves foráneas
-    await pool.query('DELETE FROM presences WHERE id_category = $1', [id_category]);
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [req.body.email]);
+    if (result.rowCount === 0) return res.status(401).json({ error: "Utente non trovato" });
     
-    // Ahora borramos la categoría
-    await pool.query('DELETE FROM categories WHERE id_category = $1', [id_category]);
-    res.json({ message: "Categoria eliminata con successo" });
-  } catch (error) {
-    console.error("🔴 Error real en Postgres (Eliminar Categoría):", error);
-    res.status(500).json({ error: "Errore eliminazione categoria" });
-  }
+    const user = result.rows[0];
+    if (!(await bcrypt.compare(req.body.password, user.password))) return res.status(401).json({ error: "Password errata" });
+    
+    const token = jwt.sign({ id_user: user.id_user }, SECRET_KEY, { expiresIn: '8h' });
+    res.json({ token, user });
+  } catch (err) { res.status(500).json({ error: "Errore server" }); }
 });
+
+app.post('/api/presences', async (req, res) => {
+  try {
+    const result = await pool.query(`INSERT INTO presences (id_user, date, id_category) VALUES ($1, $2, $3) ON CONFLICT (id_user, date) DO UPDATE SET id_category = EXCLUDED.id_category RETURNING *;`, [req.body.id_user, req.body.date, req.body.id_category]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: "Error presences" }); }
+});
+
+
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor listo en http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 API Ready on port ${PORT}`));
