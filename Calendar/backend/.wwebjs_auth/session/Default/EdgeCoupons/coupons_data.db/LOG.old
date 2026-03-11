@@ -1,0 +1,6 @@
+2026/03/11-16:53:09.075 2bdc Reusing MANIFEST C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/03/11-16:53:09.076 2bdc Recovering log #10
+2026/03/11-16:53:09.076 2bdc Reusing old log C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\EdgeCoupons/coupons_data.db/000010.log 
+2026/03/11-16:53:09.231 2234 Level-0 table #14: started
+2026/03/11-16:53:09.237 2234 Level-0 table #14: 681704 bytes OK
+2026/03/11-16:53:09.239 2234 Delete type=0 #10

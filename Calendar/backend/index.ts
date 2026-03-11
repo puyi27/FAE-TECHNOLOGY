@@ -58,8 +58,9 @@ whatsapp.on('qr', (qr) => {
 });
 
 whatsapp.on('ready', () => {
-  console.log('✅ Bot de WhatsApp CONECTADO Y LISTO.');
+  console.log('✅ Bot listo.');
   isBotReady = true;
+
 });
 
 whatsapp.on('disconnected', (reason) => {
@@ -73,36 +74,62 @@ whatsapp.initialize().catch(err => console.error("Error inicializando WhatsApp:"
 // --------------------------------------------------------
 const GROUP_ID = process.env.WA_GROUP_ID || "";
 const WEB_URL = process.env.WA_WEB_URL || "http://localhost:3000";
-const CRON_TIME = "* * * * *"; // Cada Minuto
+const CRON_TIME = process.env.WA_CRON_SCHEDULE || "00 17 * * 1-5";
 
 cron.schedule(CRON_TIME, async () => {
-  if (!isBotReady || !GROUP_ID) {
-    console.log('⏰ Cron: Bot no listo o ID de grupo no configurado.');
+  if (!isBotReady) {
+    console.log('⏰ Cron: Bot no listo.');
     return;
   }
 
   try {
+    // 1. Obtenemos usuarios de la base de datos
+    // Usamos "phoneNumber" entre comillas por si en Postgres tiene mayúsculas
+    const result = await pool.query('SELECT full_name, "phoneNumber" FROM users WHERE "phoneNumber" IS NOT NULL');
+    const usuarios = result.rows;
+
+    if (usuarios.length === 0) {
+      console.log('⏰ Cron: No hay usuarios con teléfono.');
+      return;
+    }
+
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toLocaleDateString('it-IT', { 
         weekday: 'long', day: 'numeric', month: 'long' 
     });
 
-    const messaggio = `📢 *PROMEMORIA PRESENZE* 🤖\n\n` +
-                      `Ciao a tutti! Vi ricordiamo di inserire la vostra presenza per domani (*${tomorrowStr}*).\n\n` +
-                      `Accedi qui per aggiornare: \n🔗 ${WEB_URL}\n\n` +
-                      `Grazie! 🚀`;
+    console.log(`🚀 Enviando notificaciones a ${usuarios.length} usuarios...`);
 
-    await whatsapp.sendMessage(GROUP_ID, messaggio);
-    console.log(`✅ Recordatorio enviado a las ${new Date().toLocaleTimeString()}`);
-    
-  } catch (error) {
-    console.error('❌ Error enviando mensaje de Cron:', error);
+    for (const user of usuarios) {
+      try {
+        // Limpiamos el número: quitamos espacios, el "+" y cualquier carácter no numérico
+        const cleanNumber = user.phoneNumber.replace(/\D/g, '');
+        
+        // Formato para chat individual: número + @c.us
+        const chatId = `${cleanNumber}@c.us`;
+
+        const messaggio = `Ciao *${user.full_name}*! 🤖\n\n` +
+                          `Ti ricordiamo di inserire la tua presenza per domani (*${tomorrowStr}*).\n\n` +
+                          `Accedi qui per aggiornare: \n🔗 ${WEB_URL}\n\n` +
+                          `Grazie! 🚀`;
+
+        await whatsapp.sendMessage(chatId, messaggio);
+        console.log(`✅ Enviado a: ${user.full_name}`);
+        
+        // Pausa de seguridad para evitar bloqueos
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+      } catch (err: any) { // 👈 Usamos ': any' o validación para evitar el error 'unknown'
+        console.error(`❌ Error con ${user.full_name}:`, err instanceof Error ? err.message : err);
+      }
+    }
+  } catch (error: any) {
+    console.error('❌ Error general en Cron:', error instanceof Error ? error.message : error);
   }
 }, {
   timezone: "Europe/Rome"
 });
-
 // --------------------------------------------------------
 // 3. RUTAS DE LA API (CRUD)
 // --------------------------------------------------------
@@ -211,15 +238,19 @@ app.post('/api/presences', async (req, res) => {
 });
 
 // RUTA DE PRUEBA: Entra a http://localhost:4000/api/test-wa en tu navegador para forzar el mensaje
-app.get('/api/test-wa', async (req, res) => {
-  if (!isBotReady) return res.status(400).json({ error: "Bot no está listo" });
-  if (!GROUP_ID) return res.status(400).json({ error: "Falta el ID del grupo" });
-
+app.get('/api/test-individual', async (req, res) => {
+  if (!isBotReady) return res.status(400).json({ error: "Bot no listo" });
   try {
-    await whatsapp.sendMessage(GROUP_ID, "Este es un mensaje de prueba forzado 🚀");
-    res.json({ success: true, msg: "Mensaje enviado correctamente al grupo!" });
-  } catch (error) {
-    res.status(500).json({ error: "Error enviando", detalle: error });
+    const result = await pool.query('SELECT full_name, "phoneNumber" FROM users WHERE "phoneNumber" IS NOT NULL LIMIT 1');
+    if (result.rows.length === 0) return res.status(404).json({ error: "No hay usuarios con móvil" });
+    
+    const user = result.rows[0];
+    const number = user.phoneNumber.replace(/\D/g, '');
+    await whatsapp.sendMessage(`${number}@c.us`, `Prueba de envío individual para ${user.full_name}`);
+    
+    res.json({ success: true, msg: `Mensaje enviado a ${user.full_name}` });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
   }
 });
 
