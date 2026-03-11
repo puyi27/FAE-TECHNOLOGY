@@ -25,7 +25,7 @@ const whatsapp = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
     executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-    headless: false, 
+    headless: true, // 🚀 CAMBIO CLAVE: Ahora se ejecuta en modo invisible/fantasma
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   },
   webVersionCache: {
