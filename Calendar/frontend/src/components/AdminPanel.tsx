@@ -1,26 +1,52 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type User } from '../types'; // Asegúrate de exportar Category también en tus types si puedes
+import { type User } from '../types'; 
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import CategoryIcon from '@mui/icons-material/Category';
+import BusinessIcon from '@mui/icons-material/Business';
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
+import BeachAccessIcon from '@mui/icons-material/BeachAccess';
+import SickIcon from '@mui/icons-material/Sick';
+import LuggageIcon from '@mui/icons-material/Luggage';
+
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+
 import { getDynamicCategoryName, getCategoryIcon } from '../utils/categoryUtils';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
-export default function AdminPanel() {
+interface AdminPanelProps {
+  refreshGlobalData?: () => void;
+}
+
+export default function AdminPanel({ refreshGlobalData }: AdminPanelProps) {
   const { t, i18n } = useTranslation();
   
   const [users, setUsers] = useState<User[]>([]);
-  const [categories, setCategories] = useState<any[]>([]); // Cámbialo a Category[] cuando lo definas en types
+  const [categories, setCategories] = useState<any[]>([]); 
   const [loading, setLoading] = useState(true);
 
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
+  const [alertMessage, setAlertMessage] = useState<{show: boolean, msg: string, type: 'error' | 'success' | 'warning'}>({show: false, msg: '', type: 'error'});
+  const [confirmDialog, setConfirmDialog] = useState<{show: boolean, msg: string, onConfirm: () => void}>({show: false, msg: '', onConfirm: () => {}});
+
+  const showAlert = (msg: string, type: 'error' | 'success' | 'warning' = 'error') => {
+    setAlertMessage({ show: true, msg, type });
+  };
+
+  const showConfirm = (msg: string, onConfirm: () => void) => {
+    setConfirmDialog({ show: true, msg, onConfirm });
+  };
+
   const [userFormData, setUserFormData] = useState({ 
-    id_user: '', full_name: '', phoneNumber: '', alias: '', work: '', email: '', role: 'user', password: '' 
+    id_user: '', full_name: '', phoneNumber: '', alias: '', work: '', email: '', role: 'user', password: '',
+    avatar: '', description: '', status: 'Disponibile' // <-- AÑADIDO ESTO
   });
   
   const [categoryFormData, setCategoryFormData] = useState({ 
@@ -49,14 +75,27 @@ export default function AdminPanel() {
     fetchData();
   }, []);
 
-  const handleOpenUserModal = (user?: any) => {
+const handleOpenUserModal = (user?: any) => {
     if (user) {
       setUserFormData({ 
-        id_user: user.id_user, full_name: user.full_name, phoneNumber: user.phoneNumber || '', 
-        alias: user.alias, work: user.work || '', email: user.email || '', role: user.role || 'user', password: '' 
+        id_user: user.id_user, 
+        full_name: user.full_name, 
+        phoneNumber: user.phoneNumber || '', 
+        alias: user.alias, 
+        work: user.work || '', 
+        email: user.email || '', 
+        role: user.role || 'user', 
+        password: '',
+        // --- AÑADIMOS ESTAS 3 LÍNEAS PARA NO PERDER LOS DATOS ---
+        avatar: user.avatar || '',
+        description: user.description || '',
+        status: user.status || 'Disponibile'
       });
     } else {
-      setUserFormData({ id_user: '', full_name: '', phoneNumber: '', alias: '', work: '', email: '', role: 'user', password: '' });
+      setUserFormData({ 
+        id_user: '', full_name: '', phoneNumber: '', alias: '', work: '', email: '', role: 'user', password: '',
+        avatar: '', description: '', status: 'Disponibile' 
+      });
     }
     setIsUserModalOpen(true);
   };
@@ -72,9 +111,8 @@ export default function AdminPanel() {
     
     if (!isUpdating) {
       delete dataToSend.id_user;
-      if (!dataToSend.password) return alert(t('admin.err_password_required') || "Password is required for new users.");
+      if (!dataToSend.password) return showAlert(t('admin.err_password_required'), 'error');
     } else {
-      // Si estamos actualizando y el password está vacío, no lo enviamos
       if (!dataToSend.password) delete dataToSend.password;
     }
 
@@ -82,13 +120,28 @@ export default function AdminPanel() {
       const response = await fetch(isUpdating ? `${API_URL}/users/${userFormData.id_user}` : `${API_URL}/users`, { 
         method: isUpdating ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataToSend) 
       });
-      if (response.ok) { fetchData(); handleCloseUserModal(); } else alert(t('admin.err_server'));
-    } catch (error) { alert(t('admin.err_network')); }
+      if (response.ok) { 
+        fetchData(); 
+        handleCloseUserModal(); 
+        if (refreshGlobalData) refreshGlobalData(); 
+        // TRADUCCIÓN APLICADA AQUÍ:
+        showAlert(isUpdating ? t('admin.user_updated') : t('admin.user_created'), 'success');
+      } else showAlert(t('admin.err_server'), 'error');
+    } catch (error) { showAlert(t('admin.err_network'), 'error'); }
   };
 
-  const handleDeleteUser = async (id_user: string | number, full_name: string) => {
-    if (!window.confirm(`${t('admin.confirm_del_user')} "${full_name}"?`)) return;
-    try { const response = await fetch(`${API_URL}/users/${id_user}`, { method: 'DELETE' }); if (response.ok) fetchData(); } catch (error) { alert(t('admin.err_network')); }
+  const handleDeleteUser = (id_user: string | number, full_name: string) => {
+    showConfirm(`${t('admin.confirm_del_user')} "${full_name}"?`, async () => {
+      try { 
+        const response = await fetch(`${API_URL}/users/${id_user}`, { method: 'DELETE' }); 
+        if (response.ok) {
+          fetchData();
+          if (refreshGlobalData) refreshGlobalData();
+          // TRADUCCIÓN APLICADA AQUÍ:
+          showAlert(t('admin.user_deleted'), 'success');
+        } 
+      } catch (error) { showAlert(t('admin.err_network'), 'error'); }
+    });
   };
 
   const handleOpenCategoryModal = (category?: any) => {
@@ -109,25 +162,115 @@ export default function AdminPanel() {
 
   const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!categoryFormData.icon) return alert(t('admin.err_select_icon') || "Please select an icon.");
+    if (!categoryFormData.icon) return showAlert(t('admin.err_select_icon'), 'warning');
+    
     const method = categoryFormData.id_category ? 'PUT' : 'POST';
     const url = categoryFormData.id_category ? `${API_URL}/categories/${categoryFormData.id_category}` : `${API_URL}/categories`;
     try {
       const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(categoryFormData) });
-      if (res.ok) { handleCloseCategoryModal(); fetchData(); }
-    } catch (error) { alert(t('admin.err_server')); }
+      if (res.ok) { 
+        handleCloseCategoryModal(); 
+        fetchData(); 
+        if (refreshGlobalData) refreshGlobalData(); 
+        // TRADUCCIÓN APLICADA AQUÍ:
+        showAlert(t('admin.cat_saved'), 'success');
+      } else {
+        showAlert(t('admin.err_server'), 'error');
+      }
+    } catch (error) { showAlert(t('admin.err_server'), 'error'); }
   };
 
-  const handleDeleteCategory = async (id: number, name: string) => {
-    if (!window.confirm(`${t('admin.confirm_del_cat')} "${name}"?`)) return;
-    try { await fetch(`${API_URL}/categories/${id}`, { method: 'DELETE' }); fetchData(); } catch (error) { alert(t('admin.err_server')); }
+  const handleDeleteCategory = (id: number, name: string) => {
+    showConfirm(`${t('admin.confirm_del_cat')} "${name}"?`, async () => {
+      try { 
+        await fetch(`${API_URL}/categories/${id}`, { method: 'DELETE' }); 
+        fetchData(); 
+        if (refreshGlobalData) refreshGlobalData();
+        // TRADUCCIÓN APLICADA AQUÍ:
+        showAlert(t('admin.cat_deleted'), 'success');
+      } catch (error) { showAlert(t('admin.err_server'), 'error'); }
+    });
   };
 
   if (loading) return <div className="p-10 text-center"><span className="loading loading-dots loading-lg text-primary"></span></div>;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-700 pb-20">
-      
+    <div className="p-6 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-700 pb-20 relative">
+
+      {alertMessage.show && (
+        <div className="modal modal-open backdrop-blur-sm z-[9999] bg-base-300/60">
+          <div className="modal-box rounded-[2.5rem] border border-base-300 shadow-2xl text-center max-w-sm p-8 animate-fade-in-up">
+            <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 shadow-inner ${
+              alertMessage.type === 'error' ? 'bg-error/10 text-error ring-2 ring-error/20' : 
+              alertMessage.type === 'success' ? 'bg-success/10 text-success ring-2 ring-success/20' : 
+              'bg-warning/10 text-warning ring-2 ring-warning/20'
+            }`}>
+              {alertMessage.type === 'error' && <ErrorOutlineIcon fontSize="large" />}
+              {alertMessage.type === 'success' && <CheckCircleOutlineIcon fontSize="large" />}
+              {alertMessage.type === 'warning' && <WarningAmberIcon fontSize="large" />}
+            </div>
+            
+            <h3 className={`font-black text-2xl tracking-tight mb-2 ${
+              alertMessage.type === 'error' ? 'text-error' : 
+              alertMessage.type === 'success' ? 'text-success' : 
+              'text-warning'
+            }`}>
+
+              {alertMessage.type === 'error' ? t('admin.alert_error') : alertMessage.type === 'success' ? t('admin.alert_success') : t('admin.alert_warning')}
+            </h3>
+            
+            <p className="py-2 text-base-content/80 font-medium leading-relaxed">{alertMessage.msg}</p>
+            
+            <div className="modal-action justify-center mt-8">
+              <button 
+                className={`btn px-10 rounded-2xl font-black w-full ${
+                  alertMessage.type === 'error' ? 'btn-error text-error-content shadow-lg shadow-error/30' : 
+                  alertMessage.type === 'success' ? 'btn-success text-success-content shadow-lg shadow-success/30' : 
+                  'btn-warning text-warning-content shadow-lg shadow-warning/30'
+                }`}
+                onClick={() => setAlertMessage({ ...alertMessage, show: false })}
+              >
+
+                {t('admin.btn_accept')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmDialog.show && (
+        <div className="modal modal-open backdrop-blur-sm z-[9999] bg-base-300/60">
+          <div className="modal-box rounded-[2.5rem] border border-base-300 shadow-2xl text-center max-w-md p-8 animate-fade-in-up">
+            <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 bg-error/10 text-error ring-2 ring-error/20 shadow-inner">
+              <WarningAmberIcon fontSize="large" />
+            </div>
+            
+
+            <h3 className="font-black text-3xl text-base-content tracking-tight mb-3">{t('admin.confirm_title')}</h3>
+            <p className="py-2 text-base-content/70 font-medium text-lg leading-relaxed">{confirmDialog.msg}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-error/70 mt-4">{t('admin.confirm_warning')}</p>
+            
+            <div className="modal-action flex gap-4 mt-8">
+              <button 
+                className="btn btn-ghost flex-1 rounded-2xl font-bold border border-base-300 hover:bg-base-200" 
+                onClick={() => setConfirmDialog({ ...confirmDialog, show: false })}
+              >
+                {t('admin.cancel')}
+              </button>
+              <button 
+                className="btn btn-error flex-1 rounded-2xl font-black text-white shadow-lg shadow-error/30 hover:scale-105 transition-transform" 
+                onClick={() => {
+                  confirmDialog.onConfirm();
+                  setConfirmDialog({ ...confirmDialog, show: false });
+                }}
+              >
+                {t('admin.btn_yes_delete')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <section>
         <div className="flex justify-between items-end mb-6">
           <h2 className="text-4xl font-black tracking-tighter flex items-center gap-3">
@@ -263,10 +406,9 @@ export default function AdminPanel() {
                 <label className="label pb-1"><span className="label-text font-bold uppercase tracking-widest opacity-60 text-[10px]">{t('admin.email')}</span></label>
                 <input type="email" required placeholder={t('admin.user_ph_email')} className="input input-bordered w-full rounded-2xl bg-base-200/50" value={userFormData.email} onChange={e => setUserFormData({ ...userFormData, email: e.target.value })} />
               </div>
-              {/* CAMPO DE PASSWORD AÑADIDO */}
               <div className="form-control">
-                <label className="label pb-1"><span className="label-text font-bold uppercase tracking-widest opacity-60 text-[10px]">{t('admin.password') || 'Password'}</span></label>
-                <input type="password" placeholder={userFormData.id_user ? "Leave blank to keep current" : "Required for new users"} className="input input-bordered w-full rounded-2xl bg-base-200/50" value={userFormData.password} onChange={e => setUserFormData({ ...userFormData, password: e.target.value })} />
+                <label className="label pb-1"><span className="label-text font-bold uppercase tracking-widest opacity-60 text-[10px]">{t('admin.password')}</span></label>
+                <input type="password" placeholder={userFormData.id_user ? t('admin.password_ph_edit') : t('admin.password_ph_new')} className="input input-bordered w-full rounded-2xl bg-base-200/50" value={userFormData.password} onChange={e => setUserFormData({ ...userFormData, password: e.target.value })} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="form-control">

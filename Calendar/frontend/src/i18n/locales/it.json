@@ -108,7 +108,19 @@
     "password": "Password",
     "err_password_required": "La password è obbligatoria per i nuovi utenti.",
     "password_ph_edit": "Lascia vuoto per mantenere l'attuale",
-    "password_ph_new": "Obbligatoria per i nuovi utenti"
+    "password_ph_new": "Obbligatoria per i nuovi utenti",
+    "user_updated": "Utente aggiornato con successo",
+    "user_created": "Utente creato con successo",
+    "user_deleted": "Utente eliminato con successo",
+    "cat_saved": "Categoria salvata con successo",
+    "cat_deleted": "Categoria eliminata con successo",
+    "alert_error": "Ops!",
+    "alert_success": "Fatto!",
+    "alert_warning": "Avviso",
+    "btn_accept": "ACCETTA",
+    "confirm_title": "Sei sicuro?",
+    "confirm_warning": "Questa azione non può essere annullata",
+    "btn_yes_delete": "SÌ, ELIMINA"
   },
   "daycell": {
     "status": "Stato",

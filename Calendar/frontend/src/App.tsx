@@ -166,7 +166,7 @@ export default function App() {
 
             <Route path="/admin" element={
               currentUser.role === 'admin' || currentUser.role === 'ADMIN'
-                ? <AdminPanel />
+                ? <AdminPanel refreshGlobalData={loadData}/>
                 : <Navigate to="/" replace />
             } />
 
