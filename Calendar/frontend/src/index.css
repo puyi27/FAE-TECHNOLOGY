@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+
 @theme {
 
   --animate-bg-gradient: bg-gradient 3s ease infinite;
@@ -84,4 +85,46 @@ tr.hover:hover {
 }
 .animate-background-shine {
   animation: background-shine 3s linear infinite;
+}
+/* === ANIMACIÓN DE MODO OSCURO/CLARO FLUIDA === */
+
+/* 1. Anulamos el fundido cruzado por defecto que da tirones */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* 2. Cuando pasamos a MODO OSCURO: El círculo oscuro se expande */
+[data-theme="dark"]::view-transition-old(root) {
+  z-index: 1;
+}
+[data-theme="dark"]::view-transition-new(root) {
+  z-index: 999;
+  /* El círculo empieza cerca del botón (85% a la derecha, 40px desde arriba) */
+  clip-path: circle(0px at 85% 40px);
+  animation: expand-circle 0.6s cubic-bezier(0.25, 1, 0.3, 1) forwards;
+}
+
+/* 3. Cuando pasamos a MODO CLARO: El círculo oscuro se encoge revelando la luz */
+[data-theme="light"]::view-transition-old(root) {
+  z-index: 999;
+  clip-path: circle(150% at 85% 40px);
+  animation: shrink-circle 0.6s cubic-bezier(0.25, 1, 0.3, 1) forwards;
+}
+[data-theme="light"]::view-transition-new(root) {
+  z-index: 1;
+}
+
+/* 4. Las animaciones clave usando GPU (clip-path) */
+@keyframes expand-circle {
+  to { clip-path: circle(150% at 85% 40px); }
+}
+@keyframes shrink-circle {
+  to { clip-path: circle(0px at 85% 40px); }
+}
+@layer base {
+  *, *::before, *::after {
+    @apply transition-colors duration-300 ease-in-out;
+  }
 }

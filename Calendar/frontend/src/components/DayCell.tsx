@@ -1,23 +1,7 @@
 import { type Presence } from '../types';
 import { useTranslation } from 'react-i18next';
-import BusinessIcon from '@mui/icons-material/Business';
-import HomeWorkIcon from '@mui/icons-material/HomeWork';
-import BeachAccessIcon from '@mui/icons-material/BeachAccess';
-import SickIcon from '@mui/icons-material/Sick';
-import LuggageIcon from '@mui/icons-material/Luggage';
 import AddIcon from '@mui/icons-material/Add'; 
-
-
-export const getDynamicCategoryName = (cat: any, currentLang: string, t: any) => {
-  if (!cat) return '';
-  
-  // 1. Prioridad: Lo que esté guardado en la Base de Datos
-  if (currentLang === 'es' && cat.name_es) return cat.name_es;
-  if (currentLang === 'en' && cat.name_en) return cat.name_en;
-  
-  // 2. Si la Base de Datos está vacía, lee tu archivo .json
-  return t(`categories_list.${cat.name}`, { defaultValue: cat.name });
-};
+import { getDynamicCategoryName, getCategoryIcon } from '../utils/categoryUtils'; // Importación correcta
 
 interface DayCellProps {
   presence?: Presence;
@@ -28,17 +12,6 @@ interface DayCellProps {
 export const DayCell = ({ presence, onAdd, isEditable }: DayCellProps) => {
   const { t, i18n } = useTranslation();
   
-  const getCategoryIcon = (iconStr?: string | null) => {
-    switch (iconStr) {
-      case '🏢': return <BusinessIcon fontSize="inherit" />;
-      case '🏠': return <HomeWorkIcon fontSize="inherit" />;
-      case '🏖️': return <BeachAccessIcon fontSize="inherit" />;
-      case '🤒': return <SickIcon fontSize="inherit" />;
-      case '💼': return <LuggageIcon fontSize="inherit" />;
-      default: return iconStr || '📍';
-    }
-  };
-
   return (
     <div
       onClick={isEditable ? onAdd : undefined}
@@ -56,7 +29,6 @@ export const DayCell = ({ presence, onAdd, isEditable }: DayCellProps) => {
             {getCategoryIcon(presence.categories?.icon)}
           </span>
           <span className="text-[10px] text-base-content/60 font-black mt-1 text-center uppercase tracking-widest leading-tight">
-
             {getDynamicCategoryName(presence.categories, i18n.language, t)}
           </span>
         </div>

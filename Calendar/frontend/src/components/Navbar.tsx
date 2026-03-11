@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'; // <-- Añadido useState y useEffect
 import { Link, useLocation } from 'react-router-dom';
 import { type User } from '../types';
 import { useTranslation } from 'react-i18next';
@@ -11,15 +12,53 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import '../i18n/config';
 
 interface NavbarProps {
-  theme: string;
-  toggleTheme: () => void;
+  // Quitamos theme y toggleTheme de aquí
   currentUser?: User | null;
   onLogout?: () => void;
 }
 
-export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: NavbarProps) {
+export default function Navbar({ currentUser, onLogout }: NavbarProps) {
   const location = useLocation();
   const { t, i18n } = useTranslation();
+
+  // --- LÓGICA DEL TEMA MOVIDA AQUÍ ---
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+
+    // 1. Creamos una etiqueta <style> que apaga TODAS las transiciones del navegador
+    const css = document.createElement('style');
+    css.appendChild(
+      document.createTextNode(
+        `* {
+           -webkit-transition: none !important;
+           -moz-transition: none !important;
+           -o-transition: none !important;
+           -ms-transition: none !important;
+           transition: none !important;
+        }`
+      )
+    );
+    document.head.appendChild(css);
+
+    // 2. Cambiamos el tema en el HTML y en el estado
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    localStorage.setItem('theme', nextTheme);
+    setTheme(nextTheme);
+
+    // 3. Forzamos al navegador a repintar la pantalla AL INSTANTE
+    const _ = window.getComputedStyle(css).opacity;
+
+    // 4. Volvemos a borrar la etiqueta <style> para que tus botones vuelvan a funcionar normal
+    document.head.removeChild(css);
+  };
+  // -----------------------------------
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -29,7 +68,7 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'ADMIN';
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-base-200/60 bg-base-100/80 backdrop-blur-md transition-colors duration-300">
+    <header className="sticky top-0 z-50 w-full border-b border-base-200/60 bg-base-100/80 backdrop-blur-md">
       <div className="navbar max-w-1600px mx-auto px-4 md:px-8 h-20">
 
         {/* LOGO */}
@@ -71,6 +110,7 @@ export default function Navbar({ theme, toggleTheme, currentUser, onLogout }: Na
 
           <div className="w-2px h-8 bg-base-300/60 mx-1 sm:mx-2 hidden sm:block rounded-full"></div>
 
+          {/* CHECKBOX DEL TEMA (Ahora funciona localmente) */}
           <label className="swap swap-rotate btn btn-ghost btn-circle btn-sm md:btn-md hover:bg-base-200/50 transition-colors">
             <input type="checkbox" onChange={toggleTheme} checked={theme === 'dark'} />
             <div className="swap-off text-xl md:text-2xl drop-shadow-sm"><LightModeIcon /></div>

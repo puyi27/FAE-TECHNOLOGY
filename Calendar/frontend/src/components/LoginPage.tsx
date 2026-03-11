@@ -5,6 +5,8 @@ import LockIcon from '@mui/icons-material/Lock';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import PasswordIcon from '@mui/icons-material/Password';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+
 interface LoginPageProps {
   onLogin: (user: any, token: string) => void;
 }
@@ -21,7 +23,7 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
     setError('');
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/api/login', {
+      const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -41,13 +43,10 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
 
   return (
     <div className="min-h-screen bg-base-200 flex items-center justify-center p-4 relative overflow-hidden">
-      
-      {/* --- FONDO ANIMADO --- */}
       <RetroGrid />
       <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/30 rounded-full blur-[120px] animate-pulse pointer-events-none mix-blend-screen"></div>
       <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-secondary/30 rounded-full blur-[120px] animate-pulse pointer-events-none mix-blend-screen" style={{ animationDelay: '2s' }}></div>
 
-      {/* --- TARJETA GLASSMORPHISM --- */}
       <div className="w-full max-w-md bg-base-100/60 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_0_50px_-15px_rgba(0,0,0,0.3)] border border-white/20 dark:border-white/5 p-8 md:p-10 relative z-10 animate-fade-in-up">
         
         <div className="text-center mb-10">

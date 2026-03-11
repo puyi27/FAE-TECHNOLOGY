@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import { useTranslation } from 'react-i18next'; 
 import { type User, type Presence } from '../types';
 import RetroGrid from './RetroGrid';
+import { getDynamicCategoryName, getCategoryIcon } from '../utils/categoryUtils';
 
 import DoNotDisturbOnTotalSilenceIcon from '@mui/icons-material/DoNotDisturbOnTotalSilence';
 import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction';
@@ -13,20 +14,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import HomeWorkIcon from '@mui/icons-material/HomeWork';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import BusinessIcon from '@mui/icons-material/Business';
-import SickIcon from '@mui/icons-material/Sick';
-import LuggageIcon from '@mui/icons-material/Luggage';
 import AddIcon from '@mui/icons-material/Add';
+import PasswordIcon from '@mui/icons-material/Password';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 
 dayjs.extend(isoWeek);
-
-// 🚀 Helper de traducción dinámica
-export const getDynamicCategoryName = (cat: any, currentLang: string) => {
-  if (!cat) return '';
-  if (currentLang === 'es' && cat.name_es) return cat.name_es;
-  if (currentLang === 'en' && cat.name_en) return cat.name_en;
-  return cat.name;
-};
 
 interface ProfilePageProps {
   users: User[];
@@ -42,8 +34,14 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
   const isMyProfile = user?.id_user === currentUser.id_user;
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [isEditing, setIsEditing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [formData, setFormData] = useState({
-    alias: user?.alias || '', avatar: user?.avatar || '', description: user?.description || '', status: user?.status || 'Disponibile'
+    alias: user?.alias || '', 
+    avatar: user?.avatar || '', 
+    description: user?.description || '', 
+    status: user?.status || 'Disponibile',
+    password: ''
   });
 
   const presenceMap = useMemo(() => {
@@ -65,19 +63,49 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
   const handleSaveProfile = () => {
     const isEmpty = formData.avatar.trim() === '';
     const finalAvatar = isEmpty ? `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.alias)}&background=random` : formData.avatar;
+    
     if (onUpdateUser) onUpdateUser({ ...user, ...formData, avatar: finalAvatar });
-    setFormData(prev => ({ ...prev, avatar: finalAvatar }));
+    
+    setFormData(prev => ({ ...prev, avatar: finalAvatar, password: '' }));
     setIsEditing(false);
   };
 
-  const getCategoryIcon = (iconStr?: string | null) => {
-    switch (iconStr) {
-      case '🏢': return <BusinessIcon fontSize="inherit" />;
-      case '🏠': return <HomeWorkIcon fontSize="inherit" />;
-      case '🏖️': return <BeachAccessIcon fontSize="inherit" />;
-      case '🤒': return <SickIcon fontSize="inherit" />;
-      case '💼': return <LuggageIcon fontSize="inherit" />;
-      default: return iconStr || '📍';
+  const handleOpenEdit = () => {
+    setFormData({ 
+      alias: user?.alias || '', 
+      avatar: user?.avatar || '', 
+      description: user?.description || '', 
+      status: user?.status || 'Disponibile',
+      password: '' 
+    }); 
+    setIsEditing(true);
+  }
+
+  // --- NUEVO: Función para manejar la subida de imagen y convertir a Base64 ---
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // Límite de 2MB
+        alert("La imagen es demasiado grande. El máximo es 2MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setFormData(prev => ({ ...prev, avatar: base64String }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Función auxiliar para renderizar el icono de estado correcto
+  const getStatusIcon = (status: string, fontSize: 'small' | 'medium' | 'large' | 'inherit' = 'small') => {
+    switch (status) {
+      case 'Occupato': return <DoNotDisturbOnTotalSilenceIcon fontSize={fontSize} className="text-error" />;
+      case 'Smart Working': return <HomeWorkIcon fontSize={fontSize} className="text-info" />;
+      case 'In Ferie': return <BeachAccessIcon fontSize={fontSize} className="text-warning" />;
+      case 'Disponibile':
+      default: return <OnlinePredictionIcon fontSize={fontSize} className="text-success" />;
     }
   };
 
@@ -87,8 +115,7 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
         <RetroGrid className="opacity-40 mix-blend-overlay" />
         <div className="absolute top-0 right-0 p-8 flex items-center gap-3 z-20">
           {isMyProfile && (
-            <button onClick={() => { setFormData({ alias: user?.alias || '', avatar: user?.avatar || '', description: user?.description || '', status: user?.status || 'Disponibile' }); setIsEditing(true); }} 
-              className="btn btn-primary btn-sm rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg hover:scale-105 transition-transform gap-1">
+            <button onClick={handleOpenEdit} className="btn btn-primary btn-sm rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg hover:scale-105 transition-transform gap-1">
               <EditIcon fontSize="small"/> {t('profile.edit')}
             </button>
           )}
@@ -103,10 +130,7 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
           {user.status && (
             <div className="absolute -bottom-2 -right-2 bg-base-100 rounded-full border-4 border-base-100 flex items-center justify-center shadow-lg px-2 py-1 z-10 text-primary">
               <span className="flex items-center justify-center" title={user.status}>
-                {user.status === 'Occupato' ? <DoNotDisturbOnTotalSilenceIcon fontSize="small" className="text-error" /> : 
-                 user.status === 'Smart Working' ? <HomeWorkIcon fontSize="small" className="text-info" /> : 
-                 user.status === 'In Ferie' ? <BeachAccessIcon fontSize="small" className="text-warning" /> : 
-                 <OnlinePredictionIcon fontSize="small" className="text-success" />}
+                {getStatusIcon(user.status)}
               </span>
             </div>
           )}
@@ -125,34 +149,20 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-center mb-10 px-4 gap-4 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-        
-        <button 
-          onClick={() => setCurrentDate(dayjs())} 
-          className="btn bg-base-100/50 backdrop-blur-md shadow-sm border border-base-300 rounded-2xl px-8 font-black uppercase text-xs tracking-widest hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all w-full sm:w-auto order-2 sm:order-1"
-        >
+        <button onClick={() => setCurrentDate(dayjs())} className="btn bg-base-100/50 backdrop-blur-md shadow-sm border border-base-300 rounded-2xl px-8 font-black uppercase text-xs tracking-widest hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all w-full sm:w-auto order-2 sm:order-1">
           {t('profile.today')}
         </button>
-
         <div className="flex items-center gap-2 bg-base-100/50 backdrop-blur-md shadow-xl border border-base-300 p-2 rounded-[2rem] w-full sm:w-auto justify-between order-1 sm:order-2">
-          <button 
-            onClick={() => setCurrentDate(c => c.subtract(1, 'month'))} 
-            className="btn btn-circle btn-ghost text-xl hover:bg-primary/10 hover:text-primary transition-all"
-          >
+          <button onClick={() => setCurrentDate(c => c.subtract(1, 'month'))} className="btn btn-circle btn-ghost text-xl hover:bg-primary/10 hover:text-primary transition-all">
             <KeyboardArrowLeftIcon/>
           </button>
-          
           <h3 className="text-2xl sm:text-3xl font-black capitalize tracking-tight text-base-content/90 min-w-[180px] text-center px-4">
             {currentDate.locale(i18n.language).format('MMMM')} <span className="text-primary tracking-tighter">{currentDate.locale(i18n.language).format('YYYY')}</span>
           </h3>
-
-          <button 
-            onClick={() => setCurrentDate(c => c.add(1, 'month'))} 
-            className="btn btn-circle btn-ghost text-xl hover:bg-primary/10 hover:text-primary transition-all"
-          >
+          <button onClick={() => setCurrentDate(c => c.add(1, 'month'))} className="btn btn-circle btn-ghost text-xl hover:bg-primary/10 hover:text-primary transition-all">
             <KeyboardArrowRightIcon/>
           </button>
         </div>
-        
         <div className="hidden sm:block w-[100px] order-3"></div>
       </div>
 
@@ -178,13 +188,11 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
                 <div className="absolute inset-0 flex flex-col items-center justify-center pt-6">
                   {presence ? (
                     <div className={`flex flex-col items-center gap-2 group/icon transition-all duration-500 ${isMyProfile ? 'cursor-pointer hover:scale-110' : 'opacity-80'}`} onClick={() => isMyProfile && onAddPresence(user.id_user, dateStr)}>
-                      
                       <div className="p-3 rounded-3xl bg-base-100 shadow-md border border-base-200 group-hover/icon:shadow-xl group-hover/icon:border-primary/30 transition-all text-4xl text-base-content/80 flex items-center justify-center drop-shadow-sm">
                         {getCategoryIcon(presence.categories?.icon)}
                       </div>
-
                       <span className="text-[10px] font-black uppercase tracking-widest text-base-content/50 group-hover/icon:text-primary transition-colors text-center">
-                        {getDynamicCategoryName(presence.categories, i18n.language)}
+                        {getDynamicCategoryName(presence.categories, i18n.language, t)}
                       </span>
                     </div>
                   ) : (
@@ -206,7 +214,7 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
       {isEditing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
           <div className="absolute inset-0 bg-base-300/80 backdrop-blur-md transition-opacity" onClick={() => setIsEditing(false)}></div>
-          <div className="bg-base-100/95 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.25)] border-2 border-base-300 w-full max-w-lg relative z-10 animate-fade-in-up p-8 flex flex-col gap-6">
+          <div className="bg-base-100/95 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.25)] border-2 border-base-300 w-full max-w-lg relative z-10 animate-fade-in-up p-8 flex flex-col gap-6 overflow-y-auto max-h-[90vh]">
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="text-3xl font-black tracking-tight">{t('profile.customize')}</h3>
@@ -214,26 +222,77 @@ export const ProfilePage = ({ users, onAddPresence, onUpdateUser, currentUser }:
               </div>
               <button onClick={() => setIsEditing(false)} className="btn btn-circle btn-ghost btn-sm">✕</button>
             </div>
-            <div className="space-y-5">
-              <div className="flex gap-6 items-center bg-base-200/50 p-4 rounded-3xl border border-base-300">
-                <div className="avatar flex-shrink-0"><div className="w-20 h-20 rounded-[1.5rem] shadow-inner bg-base-300 ring-2 ring-primary/20"><img src={formData.avatar || `https://ui-avatars.com/api/?name=${formData.alias}`} alt="Preview" className="object-cover" /></div></div>
-                <div className="form-control flex-1"><label className="label py-1"><span className="label-text font-bold text-[10px] uppercase tracking-widest opacity-60">{t('profile.avatar_url')}</span></label><input type="text" className="input input-sm input-bordered bg-base-100 rounded-xl focus:ring-2 focus:ring-primary/20 w-full" value={formData.avatar} onChange={(e) => setFormData({ ...formData, avatar: e.target.value })} placeholder="https://..." /></div>
+            
+            <div className="space-y-4">
+              
+              {/* --- NUEVO: UPLOAD DE AVATAR --- */}
+              <div className="flex gap-6 items-center bg-base-200/50 p-4 rounded-3xl border border-base-300 relative group">
+                <div className="avatar flex-shrink-0 relative">
+                  <div className="w-20 h-20 rounded-[1.5rem] shadow-inner bg-base-300 ring-2 ring-primary/20 overflow-hidden group-hover:opacity-50 transition-opacity cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                    <img src={formData.avatar || `https://ui-avatars.com/api/?name=${formData.alias}`} alt="Preview" className="object-cover w-full h-full" />
+                  </div>
+                  {/* Icono superpuesto al hacer hover */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                    <PhotoCameraIcon className="text-primary" />
+                  </div>
+                </div>
+                
+                <div className="form-control flex-1">
+                  <label className="label py-1"><span className="label-text font-bold text-[10px] uppercase tracking-widest opacity-60">{t('profile.avatar_url')}</span></label>
+                  <input type="text" className="input input-sm input-bordered bg-base-100 rounded-xl focus:ring-2 focus:ring-primary/20 w-full" value={formData.avatar} onChange={(e) => setFormData({ ...formData, avatar: e.target.value })} placeholder="https://... o haz click en la foto" />
+                  
+                  {/* Input de archivo oculto */}
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    ref={fileInputRef} 
+                    onChange={handleImageUpload} 
+                  />
+                </div>
               </div>
+              
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="form-control"><label className="label py-1"><span className="label-text font-bold text-[10px] uppercase tracking-widest opacity-60">{t('profile.name_alias')}</span></label><input type="text" className="input input-bordered bg-base-200/50 rounded-2xl focus:ring-2 focus:ring-primary/20 font-bold" value={formData.alias} onChange={(e) => setFormData({ ...formData, alias: e.target.value })} /></div>
                 
-                <div className="form-control"><label className="label py-1"><span className="label-text font-bold text-[10px] uppercase tracking-widest opacity-60">{t('profile.status')}</span></label>
-                  <select className="select select-bordered bg-base-200/50 rounded-2xl focus:ring-2 focus:ring-primary/20 font-bold" value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })}>
-                    <option value="Disponibile">{t('profile.status_available')}</option>
-                    <option value="Occupato">{t('profile.status_busy')}</option>
-                    <option value="Smart Working">{t('profile.status_smart')}</option>
-                    <option value="In Ferie">{t('profile.status_vacation')}</option>
-                  </select>
+                {/* --- NUEVO: SELECTOR DE ESTADO CON ICONOS --- */}
+                <div className="form-control">
+                  <label className="label py-1"><span className="label-text font-bold text-[10px] uppercase tracking-widest opacity-60">{t('profile.status')}</span></label>
+                  <div className="dropdown w-full">
+                    <div tabIndex={0} role="button" className="btn btn-outline bg-base-200/50 border-base-300 rounded-2xl w-full justify-between font-bold hover:bg-base-200 hover:border-primary/50 text-base-content">
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(formData.status)}
+                        <span>{t(`profile.status_${formData.status.toLowerCase().replace(' ', '_')}`) || formData.status}</span>
+                      </div>
+                      <span className="opacity-50">▼</span>
+                    </div>
+                    <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow-2xl bg-base-100 rounded-box w-full mt-1 border border-base-300">
+                      <li><a onClick={() => { setFormData({ ...formData, status: 'Disponibile' }); (document.activeElement as HTMLElement)?.blur(); }}><OnlinePredictionIcon fontSize="small" className="text-success" /> {t('profile.status_disponibile') || 'Disponibile'}</a></li>
+                      <li><a onClick={() => { setFormData({ ...formData, status: 'Occupato' }); (document.activeElement as HTMLElement)?.blur(); }}><DoNotDisturbOnTotalSilenceIcon fontSize="small" className="text-error" /> {t('profile.status_occupato') || 'Occupato'}</a></li>
+                      <li><a onClick={() => { setFormData({ ...formData, status: 'Smart Working' }); (document.activeElement as HTMLElement)?.blur(); }}><HomeWorkIcon fontSize="small" className="text-info" /> {t('profile.status_smart_working') || 'Smart Working'}</a></li>
+                      <li><a onClick={() => { setFormData({ ...formData, status: 'In Ferie' }); (document.activeElement as HTMLElement)?.blur(); }}><BeachAccessIcon fontSize="small" className="text-warning" /> {t('profile.status_in_ferie') || 'In Ferie'}</a></li>
+                    </ul>
+                  </div>
                 </div>
-
               </div>
+
+              <div className="form-control">
+                <label className="label py-1">
+                  <span className="label-text font-bold text-[10px] uppercase tracking-widest text-error flex items-center gap-1"><PasswordIcon fontSize="small"/> {t('profile.change_password') || 'New Password'}</span>
+                  <span className="label-text-alt opacity-40">{t('profile.optional') || 'Optional'}</span>
+                </label>
+                <input 
+                  type="password" 
+                  className="input input-bordered border-error/30 bg-base-200/50 rounded-2xl focus:border-error focus:ring-2 focus:ring-error/20" 
+                  placeholder={t('profile.password_placeholder') || 'Leave blank to keep current'}
+                  value={formData.password} 
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })} 
+                />
+              </div>
+
               <div className="form-control"><label className="label py-1"><span className="label-text font-bold text-[10px] uppercase tracking-widest opacity-60">{t('profile.bio')}</span><span className="label-text-alt opacity-40">{formData.description.length}/100</span></label><textarea className="textarea textarea-bordered bg-base-200/50 rounded-2xl focus:ring-2 focus:ring-primary/20 resize-none h-24" placeholder={t('profile.bio_placeholder')} maxLength={100} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}></textarea></div>
             </div>
+            
             <div className="flex gap-3 mt-4 pt-4 border-t border-base-300/50">
               <button onClick={() => setIsEditing(false)} className="btn btn-ghost flex-1 rounded-2xl font-bold">{t('profile.cancel')}</button>
               <button onClick={handleSaveProfile} className="btn btn-primary flex-1 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/30">{t('profile.save')}</button>

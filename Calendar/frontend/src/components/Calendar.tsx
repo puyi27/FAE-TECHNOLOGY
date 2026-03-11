@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { DayCell } from './DayCell';
 import { type User } from '../types';
 
-// --- NAVEGACIÓN UI ---
 import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -26,17 +25,18 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
   const { t, i18n } = useTranslation(); 
   const navigate = useNavigate();
   
-  // Estados de interfaz
   const [searchTerm, setSearchTerm] = useState('');
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'alias', direction: 'asc' });
 
-  // Cálculos de fechas
-  const startOfWeek = currentDate.startOf('isoWeek');
-  const endOfWeek = currentDate.endOf('isoWeek');
-  const weekDays = Array.from({ length: 7 }, (_, i) => startOfWeek.add(i, 'day'));
+  // Optimización: useMemo para evitar recálculos en cada renderizado (ej: al escribir en la búsqueda)
+  const { startOfWeek, endOfWeek, weekDays } = useMemo(() => {
+    const start = currentDate.startOf('isoWeek');
+    const end = currentDate.endOf('isoWeek');
+    const days = Array.from({ length: 7 }, (_, i) => start.add(i, 'day'));
+    return { startOfWeek: start, endOfWeek: end, weekDays: days };
+  }, [currentDate]);
 
-  // Filtrado y ordenación
   const sortedUsers = useMemo(() => {
     let items = [...users].filter(user => 
       user.alias.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -59,7 +59,6 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
 
   return (
     <div className="space-y-6 animate-fade-in">
-
       <div className="grid grid-cols-1 lg:grid-cols-3 items-center gap-4 px-4">
         <div className="flex justify-start w-full order-2 lg:order-none">
           <div className="relative w-full lg:w-72 group">
@@ -97,7 +96,6 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
           </button>
         </div>
       </div>
-
 
       <div className="overflow-hidden rounded-[2.5rem] border-2 border-base-300 bg-base-100 shadow-2xl">
         <table className="table table-fixed w-full border-separate border-spacing-0">
@@ -169,7 +167,6 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
                       </td>
                     );
                   })}
-
                 </tr>
               );
             })}
