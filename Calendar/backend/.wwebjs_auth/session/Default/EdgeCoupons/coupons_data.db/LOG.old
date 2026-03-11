@@ -1,6 +1,0 @@
-2026/03/11-16:16:02.218 57c4 Reusing MANIFEST C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/03/11-16:16:02.219 57c4 Recovering log #37
-2026/03/11-16:16:02.220 57c4 Reusing old log C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\EdgeCoupons/coupons_data.db/000037.log 
-2026/03/11-16:16:02.380 6e40 Level-0 table #41: started
-2026/03/11-16:16:02.388 6e40 Level-0 table #41: 681704 bytes OK
-2026/03/11-16:16:02.390 6e40 Delete type=0 #37

@@ -3,9 +3,9 @@
    "roots": {
       "bookmark_bar": {
          "children": [ {
-            "date_added": "13417713733470399",
+            "date_added": "13417716237838030",
             "date_last_used": "0",
-            "guid": "6c524723-59fb-458e-9322-b63b89002a9d",
+            "guid": "72a3f125-1ae8-4b69-a22b-e789ff371665",
             "id": "9",
             "name": "ASUS Software Portal - Exclusive technology",
             "show_icon": false,
@@ -14,9 +14,9 @@
             "url": "https://www.asus.com/Software-and-Innovations-Portal/",
             "visit_count": 0
          }, {
-            "date_added": "13417713733469157",
+            "date_added": "13417716237836773",
             "date_last_used": "0",
-            "guid": "1c6ca7ac-8534-4cca-8ec5-6e87945f88d7",
+            "guid": "50c00fde-fc8f-461a-b408-5eaf40a70fd4",
             "id": "8",
             "name": "MyASUS Software - Get the best from ASUS PC",
             "show_icon": false,
@@ -25,9 +25,9 @@
             "url": "https://www.asus.com/ASUS-Software/",
             "visit_count": 0
          }, {
-            "date_added": "13417713733467483",
+            "date_added": "13417716237835217",
             "date_last_used": "0",
-            "guid": "97d28c28-9b25-47f7-8d82-ffab4a5095fd",
+            "guid": "34527aaf-5c1a-40b9-a062-e941f6fef802",
             "id": "7",
             "name": "McAfee LiveSafe",
             "show_icon": false,
@@ -36,9 +36,9 @@
             "url": "https://home.mcafee.com/root/campaign.aspx?cid=247829",
             "visit_count": 0
          } ],
-         "date_added": "13417713733144981",
+         "date_added": "13417716237549828",
          "date_last_used": "0",
-         "date_modified": "13417713733470399",
+         "date_modified": "13417716237838030",
          "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
          "id": "1",
          "name": "Barra de favoritos",
@@ -47,7 +47,7 @@
       },
       "other": {
          "children": [  ],
-         "date_added": "13417713733144981",
+         "date_added": "13417716237549828",
          "date_last_used": "0",
          "date_modified": "0",
          "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
@@ -58,7 +58,7 @@
       },
       "synced": {
          "children": [  ],
-         "date_added": "13417713733144981",
+         "date_added": "13417716237549828",
          "date_last_used": "0",
          "date_modified": "0",
          "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
@@ -69,7 +69,7 @@
       },
       "workspaces_v2": {
          "children": [  ],
-         "date_added": "13417713733144981",
+         "date_added": "13417716237549828",
          "date_last_used": "0",
          "date_modified": "0",
          "guid": "75aa6670-344f-549d-b742-660f029506ab",

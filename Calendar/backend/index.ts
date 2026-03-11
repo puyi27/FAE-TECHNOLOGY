@@ -25,9 +25,19 @@ const whatsapp = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
     executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-    headless: true, // 🚀 CAMBIO CLAVE: Ahora se ejecuta en modo invisible/fantasma
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    headless: "new", // Mejor compatibilidad que true
+    args: [
+      '--no-sandbox', 
+      '--disable-setuid-sandbox',
+      '--disable-extensions',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--disable-gpu'
+    ],
   },
+  authTimeoutMs: 60000, // 1 minuto de espera para autenticar
   webVersionCache: {
     type: 'remote',
     remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
@@ -36,23 +46,28 @@ const whatsapp = new Client({
 
 let isBotReady = false;
 
+// Si algo falla, este evento te avisará en la consola
+whatsapp.on('auth_failure', msg => {
+    console.error('❌ FALLO DE AUTENTICACIÓN:', msg);
+    console.log('Sugerencia: Borra la carpeta .wwebjs_auth y reinicia para escanear de nuevo.');
+});
+
 whatsapp.on('qr', (qr) => {
-  console.log('📱 ¡NUEVO QR GENERADO!');
+  console.log('📱 ¡NUEVO QR GENERADO! Escanéalo para volver a conectar:');
   qrcode.generate(qr, { small: true });
 });
 
 whatsapp.on('ready', () => {
-  console.log('✅ Bot de WhatsApp conectado y listo para notificaciones automáticas.');
+  console.log('✅ Bot de WhatsApp CONECTADO Y LISTO.');
   isBotReady = true;
 });
 
-whatsapp.on('disconnected', () => {
-  console.log('❌ Bot desconectado.');
+whatsapp.on('disconnected', (reason) => {
+  console.log('❌ Bot desconectado:', reason);
   isBotReady = false;
 });
 
 whatsapp.initialize().catch(err => console.error("Error inicializando WhatsApp:", err));
-
 // --------------------------------------------------------
 // 2. CRON JOB (Notificaciones Automáticas)
 // --------------------------------------------------------
