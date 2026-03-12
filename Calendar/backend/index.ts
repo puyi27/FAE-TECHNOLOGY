@@ -69,7 +69,6 @@ cron.schedule(CRON_TIME, async () => {
   if (!isBotReady) return;
 
   try {
-    // Usamos comillas dobles para respetar las mayúsculas de la columna en Postgres
     const result = await pool.query('SELECT full_name, "phoneNumber" FROM users WHERE "phoneNumber" IS NOT NULL');
     const usuarios = result.rows;
 
@@ -88,7 +87,7 @@ cron.schedule(CRON_TIME, async () => {
         await whatsapp.sendMessage(chatId, messaggio);
         console.log(`✅ Notificación enviada a: ${user.full_name}`);
         
-        await new Promise(res => setTimeout(res, 2000)); // Delay antispam
+        await new Promise(res => setTimeout(res, 2000)); 
       } catch (err: any) {
         console.error(`❌ Error con ${user.full_name}:`, err.message);
       }
@@ -99,7 +98,7 @@ cron.schedule(CRON_TIME, async () => {
 }, { timezone: "Europe/Rome" });
 
 // --------------------------------------------------------
-// 3. RUTAS API
+// 3. RUTAS API (TODAS RESTAURADAS)
 // --------------------------------------------------------
 
 app.get('/api/users', async (req, res) => {
@@ -114,6 +113,68 @@ app.get('/api/users', async (req, res) => {
     GROUP BY u.id_user ORDER BY u.full_name ASC;`;
   try { res.json((await pool.query(query)).rows); } 
   catch (err: any) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/users', async (req, res) => {
+  const { full_name, email, alias, phoneNumber, phone_number, work, role, password } = req.body;
+  const phone = phoneNumber || phone_number || null;
+  try {
+    if (!password) return res.status(400).json({ error: "Password requerida" });
+    const hash = await bcrypt.hash(password, 10);
+    const result = await pool.query(
+      'INSERT INTO users (full_name, email, alias, "phoneNumber", work, role, password) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [full_name, email, alias, phone, work, role, hash]
+    );
+    res.json(result.rows[0]);
+  } catch (err: any) { res.status(500).json({ error: "Error post user" }); }
+});
+
+app.put('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+  const { full_name, email, alias, phoneNumber, phone_number, work, role, password, avatar, description, status, theme, language } = req.body;
+  const phone = phoneNumber || phone_number || null;
+
+  try {
+    let result;
+    if (password && password.trim() !== '') {
+      const hash = await bcrypt.hash(password, 10);
+      result = await pool.query(
+        `UPDATE users SET full_name=$1, email=$2, alias=$3, "phoneNumber"=$4, work=$5, role=$6, avatar=$7, description=$8, status=$9, password=$10, theme=$11, language=$12 WHERE id_user=$13 RETURNING *`,
+        [full_name, email, alias, phone, work, role, avatar, description, status, hash, theme, language, id]
+      );
+    } else {
+      result = await pool.query(
+        `UPDATE users SET full_name=$1, email=$2, alias=$3, "phoneNumber"=$4, work=$5, role=$6, avatar=$7, description=$8, status=$9, theme=$10, language=$11 WHERE id_user=$12 RETURNING *`,
+        [full_name, email, alias, phone, work, role, avatar, description, status, theme, language, id]
+      );
+    }
+    res.json(result.rows[0]);
+  } catch (err: any) { res.status(500).json({ error: "Error put user" }); }
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+  try { await pool.query('DELETE FROM users WHERE id_user = $1', [req.params.id]); res.json({ success: true }); } 
+  catch (err: any) { res.status(500).json({ error: "Error delete user" }); }
+});
+
+app.get('/api/categories', async (req, res) => {
+  try { res.json((await pool.query('SELECT * FROM categories ORDER BY id_category ASC')).rows); } 
+  catch (err: any) { res.status(500).json({ error: "Error categories" }); }
+});
+
+app.post('/api/categories', async (req, res) => {
+  try { res.json((await pool.query('INSERT INTO categories (name, name_en, name_es, icon) VALUES ($1, $2, $3, $4) RETURNING *', [req.body.name, req.body.name_en, req.body.name_es, req.body.icon])).rows[0]); } 
+  catch (err: any) { res.status(500).json({ error: "Error post cat" }); }
+});
+
+app.put('/api/categories/:id', async (req, res) => {
+  try { res.json((await pool.query('UPDATE categories SET name=$1, name_en=$2, name_es=$3, icon=$4 WHERE id_category=$5 RETURNING *', [req.body.name, req.body.name_en, req.body.name_es, req.body.icon, req.params.id])).rows[0]); } 
+  catch (err: any) { res.status(500).json({ error: "Error put cat" }); }
+});
+
+app.delete('/api/categories/:id', async (req, res) => {
+  try { await pool.query('DELETE FROM categories WHERE id_category = $1', [req.params.id]); res.json({ success: true }); } 
+  catch (err: any) { res.status(500).json({ error: "Error del cat" }); }
 });
 
 app.post('/api/login', async (req, res) => {
@@ -135,16 +196,30 @@ app.post('/api/login', async (req, res) => {
   } catch (err: any) { res.status(500).json({ error: "Errore server" }); }
 });
 
+app.post('/api/presences', async (req, res) => {
+    try {
+      const result = await pool.query(`INSERT INTO presences (id_user, date, id_category) VALUES ($1, $2, $3) ON CONFLICT (id_user, date) DO UPDATE SET id_category = EXCLUDED.id_category RETURNING *;`, [req.body.id_user, req.body.date, req.body.id_category]);
+      res.json(result.rows[0]);
+    } catch (err: any) { res.status(500).json({ error: "Error presences" }); }
+});
+app.delete('/api/presences', async (req, res) => {
+    try {
+      await pool.query('DELETE FROM presences WHERE id_user = $1 AND date = $2', [req.body.id_user, req.body.date]);
+      res.json({ success: true });
+    } catch (err: any) { 
+      res.status(500).json({ error: "Error al borrar la presencia" }); 
+    }
+});
+
 // RUTA DE PRUEBA INDIVIDUAL
 app.get('/api/test-individual', async (req, res) => {
   if (!isBotReady) return res.status(400).json({ error: "Bot no listo" });
 
   try {
-    // 1. Buscamos a Angel y Yuri específicamente
     const query = `
       SELECT full_name, "phoneNumber" 
       FROM users 
-      WHERE full_name ILIKE '%Angel%' OR full_name ILIKE '%Yuri%'
+      WHERE full_name ILIKE '%Posti%' OR full_name ILIKE '%Yuri%'
     `;
     
     const result = await pool.query(query);
@@ -156,18 +231,12 @@ app.get('/api/test-individual', async (req, res) => {
     console.log(`🚀 Iniciando prueba para: ${result.rows.map(u => u.full_name).join(', ')}`);
 
     for (const user of result.rows) {
-      // Limpieza total: quitamos espacios, puntos, guiones y el "+"
       let number = user.phoneNumber.replace(/\s+/g, '').replace(/\D/g, '');
-      
       console.log(`DEBUG: Intentando enviar a ${user.full_name} al número: ${number}`);
-
-      // IMPORTANTE: WhatsApp Web necesita que el ID de usuario sea exactamente: número@c.us
       const chatId = `${number}@c.us`;
 
       try {
-        // Verificamos si el número existe en WhatsApp antes de enviar (evita el error No LID)
         const isRegistered = await whatsapp.isRegisteredUser(chatId);
-        
         if (isRegistered) {
           await whatsapp.sendMessage(chatId, `🤖 Ciao ${user.full_name}! Prueba de sistema FAE Technology.`);
           console.log(`✅ ¡Enviado correctamente a ${user.full_name}!`);
@@ -177,24 +246,12 @@ app.get('/api/test-individual', async (req, res) => {
       } catch (sendErr: any) {
         console.error(`❌ Error al enviar a ${number}:`, sendErr.message);
       }
-
-      // Espera de 2 segundos entre envíos
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
-
     res.json({ success: true, msg: "Proceso terminado. Mira la consola para detalles." });
-
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
-});
-
-// ... (Resto de rutas simplificadas con catch: any)
-app.post('/api/presences', async (req, res) => {
-    try {
-      const result = await pool.query(`INSERT INTO presences (id_user, date, id_category) VALUES ($1, $2, $3) ON CONFLICT (id_user, date) DO UPDATE SET id_category = EXCLUDED.id_category RETURNING *;`, [req.body.id_user, req.body.date, req.body.id_category]);
-      res.json(result.rows[0]);
-    } catch (err: any) { res.status(500).json({ error: "Error presences" }); }
 });
 
 const PORT = process.env.PORT || 4000;
