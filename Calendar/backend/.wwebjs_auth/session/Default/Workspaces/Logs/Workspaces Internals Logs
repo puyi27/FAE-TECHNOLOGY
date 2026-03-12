@@ -130,3 +130,63 @@
 {"logTime": "0312/102500", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migrate_Schedule","source":"Workspace Migration","timestamp":"2026-03-12T10:25:00.805Z"}}
 {"logTime": "0312/102500", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migration not enabled or profile in AAD carve-out, but otherwise Eligible","source":"Workspace Migration","timestamp":"2026-03-12T10:25:00.805Z"}}
 {"logTime": "0312/102500", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: ~MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:25:00.805Z"}}
+{"logTime": "0312/103055", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:30:55.193Z"}}
+{"logTime": "0312/103055", {"lineNo":0,"logLevel":2,"message":"Migrate_FeatureCheck: Migrate_FeatureCheck","source":"Workspace Migration","timestamp":"2026-03-12T10:30:55.193Z"}}
+{"logTime": "0312/103055", {"lineNo":0,"logLevel":2,"message":"Migrate_MaybeHavePrefs: Migrate_MaybeHavePrefs","source":"Workspace Migration","timestamp":"2026-03-12T10:30:55.194Z"}}
+{"logTime": "0312/103055", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migrate_Schedule","source":"Workspace Migration","timestamp":"2026-03-12T10:30:55.194Z"}}
+{"logTime": "0312/103055", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migration not enabled or profile in AAD carve-out, but otherwise Eligible","source":"Workspace Migration","timestamp":"2026-03-12T10:30:55.194Z"}}
+{"logTime": "0312/103055", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: ~MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:30:55.194Z"}}
+{"logTime": "0312/103430", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:34:30.553Z"}}
+{"logTime": "0312/103430", {"lineNo":0,"logLevel":2,"message":"Migrate_FeatureCheck: Migrate_FeatureCheck","source":"Workspace Migration","timestamp":"2026-03-12T10:34:30.553Z"}}
+{"logTime": "0312/103430", {"lineNo":0,"logLevel":2,"message":"Migrate_MaybeHavePrefs: Migrate_MaybeHavePrefs","source":"Workspace Migration","timestamp":"2026-03-12T10:34:30.553Z"}}
+{"logTime": "0312/103430", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migrate_Schedule","source":"Workspace Migration","timestamp":"2026-03-12T10:34:30.554Z"}}
+{"logTime": "0312/103430", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migration not enabled or profile in AAD carve-out, but otherwise Eligible","source":"Workspace Migration","timestamp":"2026-03-12T10:34:30.554Z"}}
+{"logTime": "0312/103430", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: ~MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:34:30.554Z"}}
+{"logTime": "0312/103442", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:34:42.303Z"}}
+{"logTime": "0312/103442", {"lineNo":0,"logLevel":2,"message":"Migrate_FeatureCheck: Migrate_FeatureCheck","source":"Workspace Migration","timestamp":"2026-03-12T10:34:42.303Z"}}
+{"logTime": "0312/103442", {"lineNo":0,"logLevel":2,"message":"Migrate_MaybeHavePrefs: Migrate_MaybeHavePrefs","source":"Workspace Migration","timestamp":"2026-03-12T10:34:42.303Z"}}
+{"logTime": "0312/103442", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migrate_Schedule","source":"Workspace Migration","timestamp":"2026-03-12T10:34:42.304Z"}}
+{"logTime": "0312/103442", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migration not enabled or profile in AAD carve-out, but otherwise Eligible","source":"Workspace Migration","timestamp":"2026-03-12T10:34:42.304Z"}}
+{"logTime": "0312/103442", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: ~MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:34:42.304Z"}}
+{"logTime": "0312/103511", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:35:11.387Z"}}
+{"logTime": "0312/103511", {"lineNo":0,"logLevel":2,"message":"Migrate_FeatureCheck: Migrate_FeatureCheck","source":"Workspace Migration","timestamp":"2026-03-12T10:35:11.387Z"}}
+{"logTime": "0312/103511", {"lineNo":0,"logLevel":2,"message":"Migrate_MaybeHavePrefs: Migrate_MaybeHavePrefs","source":"Workspace Migration","timestamp":"2026-03-12T10:35:11.387Z"}}
+{"logTime": "0312/103511", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migrate_Schedule","source":"Workspace Migration","timestamp":"2026-03-12T10:35:11.387Z"}}
+{"logTime": "0312/103511", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migration not enabled or profile in AAD carve-out, but otherwise Eligible","source":"Workspace Migration","timestamp":"2026-03-12T10:35:11.388Z"}}
+{"logTime": "0312/103511", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: ~MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:35:11.388Z"}}
+{"logTime": "0312/104026", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:40:26.960Z"}}
+{"logTime": "0312/104026", {"lineNo":0,"logLevel":2,"message":"Migrate_FeatureCheck: Migrate_FeatureCheck","source":"Workspace Migration","timestamp":"2026-03-12T10:40:26.961Z"}}
+{"logTime": "0312/104026", {"lineNo":0,"logLevel":2,"message":"Migrate_MaybeHavePrefs: Migrate_MaybeHavePrefs","source":"Workspace Migration","timestamp":"2026-03-12T10:40:26.961Z"}}
+{"logTime": "0312/104026", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migrate_Schedule","source":"Workspace Migration","timestamp":"2026-03-12T10:40:26.961Z"}}
+{"logTime": "0312/104026", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migration not enabled or profile in AAD carve-out, but otherwise Eligible","source":"Workspace Migration","timestamp":"2026-03-12T10:40:26.961Z"}}
+{"logTime": "0312/104026", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: ~MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:40:26.961Z"}}
+{"logTime": "0312/104040", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:40:40.350Z"}}
+{"logTime": "0312/104040", {"lineNo":0,"logLevel":2,"message":"Migrate_FeatureCheck: Migrate_FeatureCheck","source":"Workspace Migration","timestamp":"2026-03-12T10:40:40.350Z"}}
+{"logTime": "0312/104040", {"lineNo":0,"logLevel":2,"message":"Migrate_MaybeHavePrefs: Migrate_MaybeHavePrefs","source":"Workspace Migration","timestamp":"2026-03-12T10:40:40.351Z"}}
+{"logTime": "0312/104040", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migrate_Schedule","source":"Workspace Migration","timestamp":"2026-03-12T10:40:40.351Z"}}
+{"logTime": "0312/104040", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migration not enabled or profile in AAD carve-out, but otherwise Eligible","source":"Workspace Migration","timestamp":"2026-03-12T10:40:40.351Z"}}
+{"logTime": "0312/104040", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: ~MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:40:40.351Z"}}
+{"logTime": "0312/104648", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:46:48.064Z"}}
+{"logTime": "0312/104648", {"lineNo":0,"logLevel":2,"message":"Migrate_FeatureCheck: Migrate_FeatureCheck","source":"Workspace Migration","timestamp":"2026-03-12T10:46:48.065Z"}}
+{"logTime": "0312/104648", {"lineNo":0,"logLevel":2,"message":"Migrate_MaybeHavePrefs: Migrate_MaybeHavePrefs","source":"Workspace Migration","timestamp":"2026-03-12T10:46:48.065Z"}}
+{"logTime": "0312/104648", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migrate_Schedule","source":"Workspace Migration","timestamp":"2026-03-12T10:46:48.065Z"}}
+{"logTime": "0312/104648", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migration not enabled or profile in AAD carve-out, but otherwise Eligible","source":"Workspace Migration","timestamp":"2026-03-12T10:46:48.065Z"}}
+{"logTime": "0312/104648", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: ~MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:46:48.065Z"}}
+{"logTime": "0312/104817", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:48:17.735Z"}}
+{"logTime": "0312/104817", {"lineNo":0,"logLevel":2,"message":"Migrate_FeatureCheck: Migrate_FeatureCheck","source":"Workspace Migration","timestamp":"2026-03-12T10:48:17.735Z"}}
+{"logTime": "0312/104817", {"lineNo":0,"logLevel":2,"message":"Migrate_MaybeHavePrefs: Migrate_MaybeHavePrefs","source":"Workspace Migration","timestamp":"2026-03-12T10:48:17.735Z"}}
+{"logTime": "0312/104817", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migrate_Schedule","source":"Workspace Migration","timestamp":"2026-03-12T10:48:17.736Z"}}
+{"logTime": "0312/104817", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migration not enabled or profile in AAD carve-out, but otherwise Eligible","source":"Workspace Migration","timestamp":"2026-03-12T10:48:17.736Z"}}
+{"logTime": "0312/104817", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: ~MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:48:17.736Z"}}
+{"logTime": "0312/105359", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:53:59.891Z"}}
+{"logTime": "0312/105359", {"lineNo":0,"logLevel":2,"message":"Migrate_FeatureCheck: Migrate_FeatureCheck","source":"Workspace Migration","timestamp":"2026-03-12T10:53:59.892Z"}}
+{"logTime": "0312/105359", {"lineNo":0,"logLevel":2,"message":"Migrate_MaybeHavePrefs: Migrate_MaybeHavePrefs","source":"Workspace Migration","timestamp":"2026-03-12T10:53:59.892Z"}}
+{"logTime": "0312/105359", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migrate_Schedule","source":"Workspace Migration","timestamp":"2026-03-12T10:53:59.892Z"}}
+{"logTime": "0312/105359", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migration not enabled or profile in AAD carve-out, but otherwise Eligible","source":"Workspace Migration","timestamp":"2026-03-12T10:53:59.892Z"}}
+{"logTime": "0312/105359", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: ~MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T10:53:59.893Z"}}
+{"logTime": "0312/110444", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T11:04:44.370Z"}}
+{"logTime": "0312/110444", {"lineNo":0,"logLevel":2,"message":"Migrate_FeatureCheck: Migrate_FeatureCheck","source":"Workspace Migration","timestamp":"2026-03-12T11:04:44.370Z"}}
+{"logTime": "0312/110444", {"lineNo":0,"logLevel":2,"message":"Migrate_MaybeHavePrefs: Migrate_MaybeHavePrefs","source":"Workspace Migration","timestamp":"2026-03-12T11:04:44.370Z"}}
+{"logTime": "0312/110444", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migrate_Schedule","source":"Workspace Migration","timestamp":"2026-03-12T11:04:44.370Z"}}
+{"logTime": "0312/110444", {"lineNo":0,"logLevel":2,"message":"Migrate_Schedule: Migration not enabled or profile in AAD carve-out, but otherwise Eligible","source":"Workspace Migration","timestamp":"2026-03-12T11:04:44.370Z"}}
+{"logTime": "0312/110444", {"lineNo":0,"logLevel":2,"message":"MaybeOrchestrateMigration: ~MaybeOrchestrateMigration","source":"Workspace Migration","timestamp":"2026-03-12T11:04:44.370Z"}}

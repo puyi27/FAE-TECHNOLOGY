@@ -1,3 +1,4 @@
+process.env.TZ = "Europe/Rome"; 
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
@@ -7,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import whatsappPkg from 'whatsapp-web.js';
 import qrcode from 'qrcode-terminal';
 import cron from 'node-cron';
+
 
 const { Pool } = pg;
 const { Client, LocalAuth } = whatsappPkg;
@@ -33,11 +35,8 @@ const whatsapp = new Client({
       '--disable-dev-shm-usage',
       '--no-zygote'
     ],
-  },
-  webVersionCache: {
-    type: 'remote',
-    remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
   }
+  // 🔥 ELIMINADO webVersionCache para evitar el bloqueo infinito de inicialización
 });
 
 let isBotReady = false;
@@ -59,22 +58,45 @@ whatsapp.on('disconnected', () => {
 
 whatsapp.initialize().catch(err => console.error("Error inicializando WhatsApp:", err));
 
-// --------------------------------------------------------
-// 2. CRON JOB (Envío Individual)
-// --------------------------------------------------------
+
 const WEB_URL = process.env.WA_WEB_URL || "http://localhost:3000";
-const CRON_TIME = process.env.WA_CRON_SCHEDULE || "12 17 * * 0-4";
+const CRON_TIME = "5 12 * * 0-4";
 
 cron.schedule(CRON_TIME, async () => {
-  if (!isBotReady) return;
+  console.log("⏰ [CRON] Iniciando envío automático de WhatsApp personalizado...");
+
+  if (!isBotReady) {
+    console.log("❌ [CRON ERROR] El bot no está listo.");
+    return;
+  }
 
   try {
-    const result = await pool.query('SELECT full_name, "phoneNumber" FROM users WHERE "phoneNumber" IS NOT NULL');
-    const usuarios = result.rows;
 
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+    const yyyy = tomorrow.getFullYear();
+    const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const dd = String(tomorrow.getDate()).padStart(2, '0');
+    const dbDate = `${yyyy}-${mm}-${dd}`;
+
+    const query = `
+      SELECT 
+        u.full_name, 
+        u."phoneNumber", 
+        u.language, 
+        c.name AS cat_it, 
+        c.name_en AS cat_en, 
+        c.name_es AS cat_es 
+      FROM users u 
+      LEFT JOIN presences p ON u.id_user = p.id_user AND p.date = $1 
+      LEFT JOIN categories c ON p.id_category = c.id_category 
+      WHERE u."phoneNumber" IS NOT NULL
+    `;
+    
+    const result = await pool.query(query, [dbDate]);
+    const usuarios = result.rows;
+
+    console.log(`📊 [CRON] Procesando ${usuarios.length} usuarios para el día ${dbDate}...`);
 
     for (const user of usuarios) {
       try {
@@ -82,23 +104,67 @@ cron.schedule(CRON_TIME, async () => {
         if (!cleanNumber) continue;
 
         const chatId = `${cleanNumber}@c.us`;
-        const messaggio = `Ciao *${user.full_name}*! 🤖\n\nTi ricordiamo di inserire la tua presenza per domani (*${tomorrowStr}*).\n\n🔗 ${WEB_URL}\n\nGrazie! 🚀`;
+        const lang = user.language || 'it'; 
+        let tomorrowStr = '';
+        let messaggio = '';
 
-        await whatsapp.sendMessage(chatId, messaggio);
-        console.log(`✅ Notificación enviada a: ${user.full_name}`);
+
+        const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+        if (lang === 'es') tomorrowStr = tomorrow.toLocaleDateString('es-ES', dateOptions);
+        else if (lang === 'en') tomorrowStr = tomorrow.toLocaleDateString('en-GB', dateOptions);
+        else tomorrowStr = tomorrow.toLocaleDateString('it-IT', dateOptions);
+
+
+        const hasPresence = !!user.cat_it;
+
+        if (hasPresence) {
+
+          let catName = user.cat_it;
+          if (lang === 'es' && user.cat_es) catName = user.cat_es;
+          if (lang === 'en' && user.cat_en) catName = user.cat_en;
+
+
+          if (lang === 'es') {
+            messaggio = `Hola *${user.full_name}* 👋\n\nHas indicado que mañana (*${tomorrowStr}*) estarás en: *${catName}*.\n\n🔗 Si necesitas cambiarlo, entra aquí:\n${WEB_URL}\n\n¡Gracias! 🚀`;
+          } else if (lang === 'en') {
+            messaggio = `Hi *${user.full_name}* 👋\n\nYou have set your status for tomorrow (*${tomorrowStr}*) as: *${catName}*.\n\n🔗 If you need to change it, click here:\n${WEB_URL}\n\nThanks! 🚀`;
+          } else {
+            messaggio = `Ciao *${user.full_name}* 👋\n\nHai indicato che domani (*${tomorrowStr}*) sarai: *${catName}*.\n\n🔗 Se devi modificarlo, accedi qui:\n${WEB_URL}\n\nGrazie! 🚀`;
+          }
+        } else {
+
+          if (lang === 'es') {
+            messaggio = `Hola *${user.full_name}* 🤖\n\nTe recordamos que aún no has indicado qué vas a hacer mañana (*${tomorrowStr}*).\n\n🔗 Por favor, entra y actualízalo:\n${WEB_URL}\n\n¡Gracias! 🚀`;
+          } else if (lang === 'en') {
+            messaggio = `Hi *${user.full_name}* 🤖\n\nJust a reminder that you haven't set your status for tomorrow (*${tomorrowStr}*).\n\n🔗 Please log in and update it:\n${WEB_URL}\n\nThanks! 🚀`;
+          } else {
+            messaggio = `Ciao *${user.full_name}* 🤖\n\nTi ricordiamo di inserire la tua presenza per domani (*${tomorrowStr}*).\n\n🔗 Accedi e aggiornala qui:\n${WEB_URL}\n\nGrazie! 🚀`;
+          }
+        }
+
+        console.log(`⏳ [CRON] Comprobando a ${user.full_name}...`);
+        const isRegistered = await whatsapp.isRegisteredUser(chatId);
+        
+        if (isRegistered) {
+          await whatsapp.sendMessage(chatId, messaggio);
+          console.log(`✅ [CRON] Mensaje enviado a ${user.full_name} (${hasPresence ? 'CONFIRMACIÓN' : 'RECORDATORIO'})`);
+        } else {
+          console.log(`❌ [CRON] ${user.full_name} no tiene WhatsApp registrado.`);
+        }
         
         await new Promise(res => setTimeout(res, 2000)); 
       } catch (err: any) {
-        console.error(`❌ Error con ${user.full_name}:`, err.message);
+        console.error(`❌ [CRON ERROR] Fallo con ${user.full_name}:`, err.message);
       }
     }
+    console.log("🏁 [CRON] Envío automático finalizado con éxito.");
   } catch (err: any) {
-    console.error('❌ Error en Cron:', err.message);
+    console.error('❌ [CRON ERROR FATAL]:', err.message);
   }
 }, { timezone: "Europe/Rome" });
 
 // --------------------------------------------------------
-// 3. RUTAS API (TODAS RESTAURADAS)
+// 3. RUTAS API (CATEGORÍAS, USUARIOS, LOGIN)
 // --------------------------------------------------------
 
 app.get('/api/users', async (req, res) => {
@@ -159,7 +225,6 @@ app.delete('/api/users/:id', async (req, res) => {
 
 app.get('/api/categories', async (req, res) => {
   try { 
-    
     const query = `
       SELECT * FROM categories 
       ORDER BY 
@@ -227,45 +292,69 @@ app.delete('/api/presences', async (req, res) => {
     }
 });
 
-// RUTA DE PRUEBA INDIVIDUAL
+// --------------------------------------------------------
+// 4. RUTA DE PRUEBA INDIVIDUAL (RASTREADOR DETALLADO)
+// --------------------------------------------------------
 app.get('/api/test-individual', async (req, res) => {
-  if (!isBotReady) return res.status(400).json({ error: "Bot no listo" });
+  console.log("➡️ [1] Petición recibida en /api/test-individual");
+
+  if (!isBotReady) {
+    console.log("❌ [ERROR] El bot aún no está listo. ¿Apareció 'Bot conectado y listo' al arrancar?");
+    return res.status(400).json({ error: "Bot no listo" });
+  }
 
   try {
+    console.log("🔍 [2] Buscando a los usuarios en la base de datos...");
     const query = `
-      SELECT full_name, "phoneNumber" 
+      SELECT full_name, alias, "phoneNumber" 
       FROM users 
-      WHERE full_name ILIKE '%Posti%' OR full_name ILIKE '%Yuri%'
+      WHERE full_name ILIKE '%Posti%' OR full_name ILIKE '%Yuri%' OR alias ILIKE '%Posti%'
     `;
     
     const result = await pool.query(query);
+    console.log(`📊 [3] Usuarios encontrados en la BD: ${result.rows.length}`);
     
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: "No se encontró a Angel ni a Yuri" });
+      console.log("⚠️ [ERROR] No se encontró a Angel ni a Yuri. Revisa cómo están escritos en la BD.");
+      return res.status(404).json({ error: "No se encontraron los usuarios" });
     }
 
-    console.log(`🚀 Iniciando prueba para: ${result.rows.map(u => u.full_name).join(', ')}`);
+    console.log(`🚀 [4] Iniciando envío para: ${result.rows.map(u => u.full_name).join(', ')}`);
 
     for (const user of result.rows) {
+      if (!user.phoneNumber) {
+         console.log(`⚠️ [SALTO] ${user.full_name} no tiene número guardado.`);
+         continue;
+      }
+
       let number = user.phoneNumber.replace(/\s+/g, '').replace(/\D/g, '');
-      console.log(`DEBUG: Intentando enviar a ${user.full_name} al número: ${number}`);
+      console.log(`⚙️ [5] Número limpio para ${user.full_name}: ${number}`);
       const chatId = `${number}@c.us`;
 
       try {
+        console.log(`⏳ [6] Preguntando a WhatsApp si ${number} existe... (esto puede tardar)`);
         const isRegistered = await whatsapp.isRegisteredUser(chatId);
+        
         if (isRegistered) {
+          console.log(`✅ [7] El número EXISTE. Procediendo a enviar mensaje...`);
           await whatsapp.sendMessage(chatId, `🤖 Ciao ${user.full_name}! Prueba de sistema FAE Technology.`);
-          console.log(`✅ ¡Enviado correctamente a ${user.full_name}!`);
+          console.log(`✅ [ÉXITO] ¡Mensaje entregado a ${user.full_name}!`);
         } else {
-          console.log(`❌ El número ${number} no está registrado en WhatsApp.`);
+          console.log(`❌ [FALLO] WhatsApp dice que el número ${number} NO está registrado.`);
         }
       } catch (sendErr: any) {
-        console.error(`❌ Error al enviar a ${number}:`, sendErr.message);
+        console.error(`❌ [ERROR CRÍTICO] Explotó al enviar a ${number}:`, sendErr);
       }
+      
+      console.log(`⏱️ [8] Esperando 2 segundos para el siguiente usuario...`);
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
-    res.json({ success: true, msg: "Proceso terminado. Mira la consola para detalles." });
+    
+    console.log("🏁 [9] Prueba individual finalizada con éxito.");
+    res.json({ success: true, msg: "Proceso terminado. Mira la consola." });
+
   } catch (err: any) {
+    console.error("❌ [ERROR GLOBAL] Algo falló en la ruta:", err);
     res.status(500).json({ error: err.message });
   }
 });
