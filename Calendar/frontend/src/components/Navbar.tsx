@@ -25,14 +25,11 @@ export default function Navbar({ currentUser, onLogout, onChangeTheme, onChangeL
 
   return (
     <>
-      {/* --- DESKTOP HEADER --- */}
-      <header className="sticky top-0 z-50 w-full border-b border-base-300/40 bg-base-100/70 backdrop-blur-2xl shadow-sm transition-all duration-300">
+      <header className="sticky top-0 z-50 w-full border-b border-base-300/40 bg-base-100/70 backdrop-blur-2xl shadow-sm">
         <div className="navbar max-w-7xl mx-auto px-4 md:px-8 h-16 md:h-[5.5rem] flex justify-between">
 
-          {/* LOGO */}
           <Link to="/" className="group flex flex-col cursor-pointer w-max transition-transform hover:scale-105 active:scale-95">
             <h1 className="text-2xl md:text-3xl font-black tracking-tighter flex items-center gap-2">
-              {/* FAE: Sólido y elegante */}
               <span className="bg-gradient-to-br from-base-content to-base-content/70 bg-clip-text text-transparent drop-shadow-sm">
                 FAE
               </span>
@@ -42,7 +39,6 @@ export default function Navbar({ currentUser, onLogout, onChangeTheme, onChangeL
             </h1>
           </Link>
 
-          {/* CONTROLES */}
           <div className="flex items-center gap-1.5 md:gap-3">
 
             <Link to="/" className={`hidden md:flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 ${location.pathname === '/' ? 'bg-primary text-primary-content shadow-lg shadow-primary/30 scale-105' : 'text-base-content/60 hover:bg-base-200 hover:text-base-content'}`}>
@@ -57,9 +53,8 @@ export default function Navbar({ currentUser, onLogout, onChangeTheme, onChangeL
 
             <div className="w-px h-8 bg-base-300/60 mx-1 hidden md:block rounded-full"></div>
 
-            {/* IDIOMA */}
             <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle hover:bg-base-200 hover:scale-110 transition-all text-lg md:text-xl">
+              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle hover:bg-base-200 hover:scale-110 transition-transform text-lg md:text-xl">
                 <LanguageIcon fontSize="inherit" />
               </div>
               <ul tabIndex={0} className="dropdown-content z-[100] menu p-2 shadow-[0_10px_40px_rgba(0,0,0,0.15)] bg-base-100/95 backdrop-blur-xl rounded-3xl border border-base-300 w-40 mt-4 gap-1">
@@ -69,23 +64,19 @@ export default function Navbar({ currentUser, onLogout, onChangeTheme, onChangeL
               </ul>
             </div>
 
-            {/* TEMA */}
-            <label className="swap swap-rotate btn btn-ghost btn-circle hover:bg-base-200 hover:scale-110 transition-all">
+            <label className="swap swap-rotate btn btn-ghost btn-circle hover:bg-base-200 hover:scale-110 transition-transform">
               <input type="checkbox" onChange={() => onChangeTheme(currentTheme === 'light' ? 'dark' : 'light')} checked={currentTheme === 'dark'} />
               <div className="swap-off text-lg md:text-2xl flex items-center justify-center"><LightModeIcon fontSize="inherit" /></div>
               <div className="swap-on text-lg md:text-2xl flex items-center justify-center"><DarkModeIcon fontSize="inherit" /></div>
             </label>
 
-            {/* PERFIL (DESKTOP) */}
             <div className="dropdown dropdown-end hidden md:block ml-1">
-              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar ring-2 ring-transparent hover:ring-primary/40 hover:scale-110 focus:ring-primary transition-all shadow-sm">
+              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar ring-2 ring-transparent hover:ring-primary/40 hover:scale-110 focus:ring-primary transition-transform shadow-sm">
                 <div className="w-10 md:w-11 rounded-full border-2 border-base-100 bg-base-300">
                   <img alt={currentUser.alias} src={currentUser.avatar ?? `https://ui-avatars.com/api/?name=${currentUser.alias}`} className="object-cover" />
                 </div>
               </div>
               <ul tabIndex={0} className="mt-5 z-[1] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.2)] menu dropdown-content bg-base-100/95 backdrop-blur-2xl rounded-[2rem] border border-base-300 w-72">
-
-                {/* Info Card Usuario */}
                 <div className="px-5 py-4 m-1 mb-2 rounded-2xl bg-gradient-to-br from-base-200 to-base-100 border border-base-300 shadow-inner flex items-center gap-4">
                   <div className="avatar">
                     <div className="w-12 h-12 rounded-full ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100">
@@ -114,16 +105,13 @@ export default function Navbar({ currentUser, onLogout, onChangeTheme, onChangeL
               </ul>
             </div>
 
-            {/* LOGOUT RÁPIDO MÓVIL (Por si acaso en la barra de arriba) */}
             <button onClick={onLogout} className="md:hidden btn btn-ghost btn-circle btn-sm text-error/70 hover:text-error ml-1"><LogoutIcon fontSize="small" /></button>
           </div>
         </div>
       </header>
 
-      {/* --- MOBILE FIXED BOTTOM NAVIGATION --- */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 w-full z-[9000] bg-base-100 border-t border-base-300 shadow-[0_-10px_30px_rgba(0,0,0,0.15)] pb-safe">
         <div className="flex justify-around items-center h-[4.5rem] px-2 relative">
-
           <Link to="/" className={`relative flex flex-col items-center justify-center w-full h-full gap-1 z-10 group transition-all duration-300 ${location.pathname === '/' ? 'text-primary' : 'text-base-content/40 hover:text-base-content/80'}`}>
             <div className={`p-1.5 rounded-2xl transition-all duration-300 ${location.pathname === '/' ? 'bg-primary/10 scale-110 shadow-inner' : 'group-hover:scale-110'}`}>
               <CalendarMonthIcon fontSize="medium" />

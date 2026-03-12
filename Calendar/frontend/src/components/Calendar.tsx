@@ -61,9 +61,9 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
   const weekDays = Array.from({ length: 7 }, (_, i) => startOfWeek.add(i, 'day'));
 
   const mobileDays = useMemo(() => {
-    const start = dayjs().subtract(365, 'day');
-    return Array.from({ length: 730 }, (_, i) => start.add(i, 'day'));
-  }, []);
+    const start = currentDate.subtract(30, 'day');
+    return Array.from({ length: 65 }, (_, i) => start.add(i, 'day'));
+  }, [currentDate]);
 
   const scrollToDate = (dateStr: string) => {
     setTimeout(() => {
@@ -92,7 +92,6 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
     setCurrentDate(dayjs(dateStr));
   };
 
-
   const handleWeekMobile = (direction: number) => {
     const newDate = currentDate.add(direction, 'week');
     setCurrentDate(newDate);
@@ -106,7 +105,6 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
     );
     
     items.sort((a, b) => {
-
       if (currentUser && a.id_user === currentUser.id_user) return -1;
       if (currentUser && b.id_user === currentUser.id_user) return 1;
 
@@ -126,16 +124,11 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
 
   return (
     <div className="space-y-4 md:space-y-6 animate-fade-in pb-10">
-      
-
       <div className="flex flex-row justify-between items-center gap-3 px-2 md:px-4 lg:grid lg:grid-cols-3">
-        
-
         <div className="w-full lg:w-auto flex-1 group relative">
           <input type="text" placeholder={t('calendar.search')} className="input input-sm md:input-md input-bordered w-full md:w-72 rounded-xl md:rounded-2xl bg-base-100 pl-10 focus:ring-4 focus:ring-primary/20 transition-all border-base-300 text-base-content placeholder:text-base-content/50 shadow-sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base-content/60 flex items-center group-focus-within:text-primary transition-colors"><SearchIcon fontSize="small"/></span>
         </div>
-
 
         <div className="hidden lg:flex justify-center w-full">
           <div className="flex items-center bg-base-100/80 backdrop-blur-md shadow-sm border border-base-300 rounded-2xl p-1 shrink-0 w-auto justify-between">
@@ -147,7 +140,6 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
           </div>
         </div>
 
-        {/* BOTÓN HOY */}
         <div className="shrink-0 flex justify-end">
           <button 
             onClick={() => { 
@@ -163,13 +155,8 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
         </div>
       </div>
 
-      {/* RESPONSIVE  */}
       <div className="block lg:hidden space-y-4 px-1">
-        
-
         <div className="bg-base-100/60 backdrop-blur-xl border border-base-300 rounded-[2rem] p-3 shadow-sm mx-1">
-          
-
           <div className="flex items-center justify-between px-2 mb-3">
             <button onClick={() => handleWeekMobile(-1)} className="btn btn-sm btn-circle bg-base-200/60 hover:bg-primary/20 hover:text-primary transition-colors border-none text-base-content/70">
               <KeyboardArrowLeftIcon fontSize="small"/>
@@ -222,7 +209,6 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
           </div>
         </div>
 
-        {/* USERS TABLE PHONE  */}
         <div className="space-y-3 px-1 pb-8">
           <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-3 pl-3">
             {dayjs(selectedMobileDate).locale(i18n.language).format('dddd, DD MMMM YYYY')}
@@ -346,7 +332,13 @@ export const Calendar = ({ users, onAddPresence, currentUser }: CalendarProps) =
                         className={`p-0 border-r border-base-300 relative transition-all duration-300 ${isWeekend ? 'bg-base-200/50' : ''} ${day.isSame(dayjs(), 'day') ? 'bg-primary/5' : ''} ${canEdit ? 'hover:bg-base-200/80' : ''}`}
                       >
                         <div className="w-full h-full flex items-center justify-center min-h-[110px] transition-all">
-                          <DayCell presence={presence} isEditable={canEdit} onAdd={() => onAddPresence(user.id_user, dateStr)} />
+                          <DayCell 
+                            presence={presence} 
+                            isEditable={canEdit} 
+                            onAddPresence={onAddPresence} 
+                            userId={user.id_user} 
+                            dateStr={dateStr} 
+                          />
                         </div>
                       </td>
                     );

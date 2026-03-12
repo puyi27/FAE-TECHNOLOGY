@@ -1,9 +1,10 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-
+/* ========================================================
+   1. VARIABLES DE TEMA Y ANIMACIONES TAILWIND
+   ======================================================== */
 @theme {
-
   --animate-bg-gradient: bg-gradient 3s ease infinite;
   --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
   --animate-grid: grid 15s linear infinite;
@@ -27,31 +28,21 @@
   }
 }
 
-
-@layer base {
-  *, *::before, *::after {
-    @apply transition-colors duration-300 ease-in-out;
-  }
-}
-
-html, 
-body, 
-.modal-box, 
-.bg-base-100 {
-  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
-              color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
+/* ========================================================
+   2. ESTILOS BASE Y HOVERS (Sin transiciones pesadas)
+   ======================================================== */
 .btn {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 tr.hover:hover {
   background-color: oklch(var(--b2) / 0.6) !important;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.1s ease;
 }
 
-
+/* ========================================================
+   3. CLASES DE UTILIDAD PERSONALIZADAS
+   ======================================================== */
 .stagger-item {
   opacity: 0;
   animation: fadeInUpOriginal 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -77,40 +68,4 @@ tr.hover:hover {
 @keyframes modalScale {
   0% { opacity: 0; transform: scale(0.9) translateY(10px); }
   100% { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-  animation-duration: 0.4s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-[data-theme="dark"]::view-transition-old(root) {
-  z-index: 1;
-}
-[data-theme="dark"]::view-transition-new(root) {
-  z-index: 999;
-  clip-path: circle(0px at 85% 40px);
-  animation: expand-circle 0.6s cubic-bezier(0.25, 1, 0.3, 1) forwards;
-}
-
-
-[data-theme="light"]::view-transition-old(root) {
-  z-index: 999;
-  clip-path: circle(150% at 85% 40px);
-  animation: shrink-circle 0.6s cubic-bezier(0.25, 1, 0.3, 1) forwards;
-}
-[data-theme="light"]::view-transition-new(root) {
-  z-index: 1;
-}
-
-@keyframes expand-circle {
-  to { clip-path: circle(150% at 85% 40px); }
-}
-@keyframes shrink-circle {
-  to { clip-path: circle(0px at 85% 40px); }
 }

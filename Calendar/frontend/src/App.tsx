@@ -52,7 +52,6 @@ export default function App() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-
   const handleLogin = (user: User, token: string) => {
     localStorage.setItem('fae_token', token);
     localStorage.setItem('fae_user', JSON.stringify(user));
@@ -72,7 +71,6 @@ export default function App() {
     setCurrentUser(updatedUser);
     localStorage.setItem('fae_user', JSON.stringify(updatedUser));
     
-
     const payload: any = { ...updatedUser };
     delete payload.password;
 
@@ -82,12 +80,10 @@ export default function App() {
         body: JSON.stringify(payload)
       });
       loadData();
-    } catch (error) { console.error("Error al guardar preferencias", error); }
+    } catch (error) { console.error(error); }
   };
 
-
   const handleUpdateUser = async (updatedData: any) => {
-
     const payload: any = { ...updatedData };
     if (!payload.password || payload.password.trim() === '') {
       delete payload.password;
@@ -106,9 +102,8 @@ export default function App() {
           localStorage.setItem('fae_user', JSON.stringify(newUserState));
         }
       }
-    } catch (error) { console.error("Error:", error); }
+    } catch (error) { console.error(error); }
   };
-
 
   const handleSavePresence = async (cid: number) => {
     if (!modalData) return;
@@ -116,7 +111,8 @@ export default function App() {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id_user: modalData.id_user, date: modalData.date, id_category: cid }),
     });
-    setModalData(null); loadData();
+    setModalData(null); 
+    loadData();
   };
 
   const handleDeletePresence = async () => {
@@ -125,8 +121,13 @@ export default function App() {
       method: 'DELETE', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id_user: modalData.id_user, date: modalData.date })
     });
-    setModalData(null); loadData();
+    setModalData(null); 
+    loadData();
   };
+
+  const handleOpenPresenceModal = useCallback((uid: number, d: string) => {
+    setModalData({id_user: uid, date: d});
+  }, []);
 
   if (!token || !currentUser) return <LoginPage onLogin={handleLogin} />;
 
@@ -134,8 +135,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-base-200 text-base-content transition-colors duration-300">
-        
+      <div className="min-h-screen bg-base-200 text-base-content">
         <Navbar 
           currentUser={currentUser} 
           onLogout={handleLogout} 
@@ -145,12 +145,12 @@ export default function App() {
 
         <main className="max-w-7xl mx-auto p-4 pb-24 md:p-8">
           <Routes>
-            <Route path="/" element={<Calendar users={users} onAddPresence={(uid, d) => setModalData({id_user: uid, date: d})} currentUser={currentUser} />} />
+            <Route path="/" element={<Calendar users={users} onAddPresence={handleOpenPresenceModal} currentUser={currentUser} />} />
             <Route path="/admin" element={(currentUser.role?.toLowerCase() === 'admin') ? <AdminPanel refreshGlobalData={loadData}/> : <Navigate to="/" replace />} />
             <Route path="/profile/:id_user" element={
               <ProfilePage 
                 users={users} 
-                onAddPresence={(uid, d) => setModalData({id_user: uid, date: d})} 
+                onAddPresence={handleOpenPresenceModal} 
                 onUpdateUser={handleUpdateUser} 
                 currentUser={currentUser} 
               />
@@ -167,8 +167,7 @@ export default function App() {
                 {categories.map(cat => (
                   <button 
                     key={cat.id_category} 
-                    onClick={() => 
-                    handleSavePresence(cat.id_category)} 
+                    onClick={() => handleSavePresence(cat.id_category)} 
                     className={`flex flex-col items-center p-3 border rounded-xl transition-all 
                       ${presenciaActual?.categories?.id_category === cat.id_category ? 
                       'bg-primary/20 border-primary ring-2 ring-primary scale-105' : 
