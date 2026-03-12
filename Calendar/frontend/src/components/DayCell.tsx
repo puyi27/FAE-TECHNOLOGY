@@ -56,7 +56,7 @@ export const DayCell = ({ presence, onAdd, isEditable }: DayCellProps) => {
         </div>
       ) : (
         isEditable && (
-          // AQUI ESTÁ LA MAGIA: opacity-100 en móvil, opacity-0 en PC (lg:opacity-0)
+
           <div className="opacity-100 lg:opacity-0 group-hover/cell:opacity-100 transition-opacity duration-300">
             <div className="w-10 h-10 rounded-full border-2 border-dashed border-primary/40 flex items-center justify-center text-primary/50 lg:group-hover/cell:border-primary lg:group-hover/cell:text-primary transition-all bg-base-200/50 shadow-inner scale-100 lg:scale-90 group-hover/cell:scale-100">
               <AddIcon fontSize="small" />

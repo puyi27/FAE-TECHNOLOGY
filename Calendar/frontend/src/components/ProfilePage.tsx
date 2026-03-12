@@ -81,7 +81,7 @@ const handleSaveProfile = () => {
     const isEmpty = formData.avatar.trim() === '';
     const finalAvatar = isEmpty ? `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.alias)}&background=random` : formData.avatar;
     
-    // 🚀 Unimos los datos, pero SI NO ESCRIBIÓ contraseña nueva, la borramos
+
     const dataToSend: any = { ...user, ...formData, avatar: finalAvatar };
     if (!formData.password || formData.password.trim() === '') {
       delete dataToSend.password;
@@ -191,7 +191,7 @@ const handleSaveProfile = () => {
                   {presence ? (
                     <div 
                       className={`flex flex-col items-center gap-1 md:gap-2 group/icon transition-all duration-500 w-full px-1 ${isMyProfile ? 'cursor-pointer hover:scale-110' : 'cursor-pointer'}`} 
-                      // 🚀 LÓGICA DE CLIC EN EL PERFIL
+
                       onClick={() => {
                         if (isMyProfile) {
                            onAddPresence(user.id_user, dateStr);
@@ -228,9 +228,6 @@ const handleSaveProfile = () => {
         </div>
       </div>
 
-      {/* ========================================================= */}
-      {/* 🚀 MODAL FLOTANTE DE INFORMACIÓN (Al tocar en el Perfil)  */}
-      {/* ========================================================= */}
       {infoModal && (
         <div className="modal modal-open modal-bottom sm:modal-middle z-[100]">
           <div className="modal-box bg-base-100/95 backdrop-blur-xl border border-base-300 shadow-2xl rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 text-center animate-fade-in-up">
@@ -260,7 +257,7 @@ const handleSaveProfile = () => {
         </div>
       )}
 
-      {/* MODAL EDITAR PERFIL */}
+      {/* MODAL EDIT PROFILE  */}
       {isEditing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
           <div className="absolute inset-0 bg-base-300/80 backdrop-blur-md transition-opacity" onClick={() => setIsEditing(false)}></div>

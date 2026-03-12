@@ -5,11 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import CategoryIcon from '@mui/icons-material/Category';
-import BusinessIcon from '@mui/icons-material/Business';
-import HomeWorkIcon from '@mui/icons-material/HomeWork';
-import BeachAccessIcon from '@mui/icons-material/BeachAccess';
-import SickIcon from '@mui/icons-material/Sick';
-import LuggageIcon from '@mui/icons-material/Luggage';
+
 
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
@@ -33,11 +29,11 @@ export default function AdminPanel({ refreshGlobalData }: AdminPanelProps) {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
-  // 🚀 NUEVO: ESTADO PARA EL TOAST
+
   const [toast, setToast] = useState<{show: boolean, msg: string, type: 'success' | 'error' | 'warning'} | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{show: boolean, msg: string, onConfirm: () => void}>({show: false, msg: '', onConfirm: () => {}});
 
-  // Función para mostrar Toast que se oculta a los 3 segundos
+
   const showToastMsg = (msg: string, type: 'success' | 'error' | 'warning' = 'success') => {
     setToast({ show: true, msg, type });
     setTimeout(() => {
@@ -184,9 +180,7 @@ export default function AdminPanel({ refreshGlobalData }: AdminPanelProps) {
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-700 pb-28 md:pb-20 relative">
       
-      {/* ========================================================== */}
-      {/* 🚀 TOAST CUSTOM DE AVISOS (Éxitos / Errores)               */}
-      {/* ========================================================== */}
+
       {toast && toast.show && (
         <div className="toast toast-top toast-center z-[9999] animate-fade-in-down mt-16 md:mt-4">
           <div className={`alert text-white font-bold shadow-2xl rounded-[1.5rem] flex items-center gap-3 px-6 py-4 backdrop-blur-md ${
@@ -202,9 +196,7 @@ export default function AdminPanel({ refreshGlobalData }: AdminPanelProps) {
         </div>
       )}
 
-      {/* ========================================================== */}
-      {/* 🚀 MODAL CUSTOM DE CONFIRMACIÓN (Solo para Borrar)         */}
-      {/* ========================================================== */}
+
       {confirmDialog.show && (
         <div className="modal modal-open backdrop-blur-sm z-[9999] bg-base-300/60 px-4">
           <div className="modal-box rounded-[2.5rem] border border-base-300 shadow-2xl text-center max-w-md p-6 md:p-8 animate-fade-in-up">
@@ -222,7 +214,7 @@ export default function AdminPanel({ refreshGlobalData }: AdminPanelProps) {
         </div>
       )}
 
-      {/* SECCIÓN USUARIOS */}
+      {/* USER SECTION  */}
       <section>
         <div className="flex justify-between items-end mb-6">
           <h2 className="text-3xl md:text-4xl font-black tracking-tighter flex items-center gap-2 md:gap-3">
@@ -233,7 +225,7 @@ export default function AdminPanel({ refreshGlobalData }: AdminPanelProps) {
           </button>
         </div>
 
-        {/* 📱 VISTA MÓVIL: Tarjetas de Usuarios */}
+        {/*  RESPONSIVE */}
         <div className="md:hidden space-y-4">
           {users.map((user) => (
             <div key={user.id_user} className="bg-base-100 rounded-3xl border border-base-300 p-4 flex items-center justify-between shadow-sm">
@@ -258,7 +250,7 @@ export default function AdminPanel({ refreshGlobalData }: AdminPanelProps) {
           ))}
         </div>
 
-        {/* 💻 VISTA ESCRITORIO: Tabla de Usuarios */}
+        {/* USER TABLE */}
         <div className="hidden md:block overflow-x-auto bg-base-100 rounded-[32px] border border-base-300 shadow-sm">
           <table className="table table-lg">
             <thead>
@@ -298,7 +290,7 @@ export default function AdminPanel({ refreshGlobalData }: AdminPanelProps) {
         </div>
       </section>
 
-      {/* SECCIÓN CATEGORÍAS (Ya es responsiva por su grid) */}
+      {/* CATEGORIES SECTION */}
       <section>
         <div className="flex justify-between items-end mb-6">
           <h2 className="text-3xl md:text-4xl font-black tracking-tighter flex items-center gap-2 md:gap-3">
@@ -331,7 +323,7 @@ export default function AdminPanel({ refreshGlobalData }: AdminPanelProps) {
         </div>
       </section>
 
-      {/* MODAL CATEGORÍAS */}
+      {/* CATEGORY MODAL */}
       {isCategoryModalOpen && (
         <div className="modal modal-open backdrop-blur-md px-4">
           <div className="modal-box rounded-[2.5rem] border border-base-300 shadow-2xl p-6 md:p-8">
@@ -368,7 +360,7 @@ export default function AdminPanel({ refreshGlobalData }: AdminPanelProps) {
         </div>
       )}
 
-      {/* MODAL USUARIOS */}
+      {/* USERS MODAL */}
       {isUserModalOpen && (
         <div className="modal modal-open backdrop-blur-md px-4">
           <div className="modal-box rounded-[2.5rem] border border-base-300 shadow-2xl p-6 md:p-8 max-w-md">

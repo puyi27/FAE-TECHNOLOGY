@@ -32,7 +32,6 @@ export default function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [modalData, setModalData] = useState<{ id_user: number; date: string } | null>(null);
 
-  // Aplicar preferencias del usuario al cargar
   useEffect(() => {
     if (currentUser) {
       i18n.changeLanguage(currentUser.language || 'it');
@@ -53,7 +52,7 @@ export default function App() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // LOGIN Y LOGOUT ULTRA LIMPIOS
+
   const handleLogin = (user: User, token: string) => {
     localStorage.setItem('fae_token', token);
     localStorage.setItem('fae_user', JSON.stringify(user));
@@ -73,7 +72,7 @@ export default function App() {
     setCurrentUser(updatedUser);
     localStorage.setItem('fae_user', JSON.stringify(updatedUser));
     
-    // MAGIA: Borramos el password del paquete antes de enviarlo al backend
+
     const payload: any = { ...updatedUser };
     delete payload.password;
 
@@ -86,9 +85,9 @@ export default function App() {
     } catch (error) { console.error("Error al guardar preferencias", error); }
   };
 
-  // ACTUALIZAR PERFIL COMPLETO
+
   const handleUpdateUser = async (updatedData: any) => {
-    // MAGIA: Si no han escrito una nueva contraseña, la borramos del paquete
+
     const payload: any = { ...updatedData };
     if (!payload.password || payload.password.trim() === '') {
       delete payload.password;
@@ -110,7 +109,7 @@ export default function App() {
     } catch (error) { console.error("Error:", error); }
   };
 
-  // 🚀 FUNCIÓN RECUPERADA: GUARDAR PRESENCIA 
+
   const handleSavePresence = async (cid: number) => {
     if (!modalData) return;
     await fetch(`${API_URL}/presences`, {
@@ -152,7 +151,7 @@ export default function App() {
               <ProfilePage 
                 users={users} 
                 onAddPresence={(uid, d) => setModalData({id_user: uid, date: d})} 
-                onUpdateUser={handleUpdateUser} // 🚀 AQUÍ AHORA LLAMA A LA FUNCIÓN CORRECTA
+                onUpdateUser={handleUpdateUser} 
                 currentUser={currentUser} 
               />
             } />
@@ -166,7 +165,15 @@ export default function App() {
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><CalendarMonthIcon/> {t('app.date')}: {modalData.date}</h3>
               <div className="grid grid-cols-3 gap-2">
                 {categories.map(cat => (
-                  <button key={cat.id_category} onClick={() => handleSavePresence(cat.id_category)} className={`flex flex-col items-center p-3 border rounded-xl transition-all ${presenciaActual?.categories?.id_category === cat.id_category ? 'bg-primary/20 border-primary ring-2 ring-primary scale-105' : 'bg-base-200 hover:scale-105'}`}>
+                  <button 
+                    key={cat.id_category} 
+                    onClick={() => 
+                    handleSavePresence(cat.id_category)} 
+                    className={`flex flex-col items-center p-3 border rounded-xl transition-all 
+                      ${presenciaActual?.categories?.id_category === cat.id_category ? 
+                      'bg-primary/20 border-primary ring-2 ring-primary scale-105' : 
+                      'bg-base-200 hover:scale-105'}`}
+                  >
                     <span className="text-3xl mb-1">{getCategoryIcon(cat.icon)}</span>
                     <span className="text-[10px] font-bold text-center leading-tight">{getDynamicCategoryName(cat, i18n.language, t)}</span>
                   </button>

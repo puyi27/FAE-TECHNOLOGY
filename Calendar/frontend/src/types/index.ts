@@ -1,4 +1,3 @@
-// types.ts - Definiciones de tipos TypeScript
 
 export interface Category {
   id_category: number;
