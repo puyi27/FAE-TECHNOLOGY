@@ -158,8 +158,24 @@ app.delete('/api/users/:id', async (req, res) => {
 });
 
 app.get('/api/categories', async (req, res) => {
-  try { res.json((await pool.query('SELECT * FROM categories ORDER BY id_category ASC')).rows); } 
-  catch (err: any) { res.status(500).json({ error: "Error categories" }); }
+  try { 
+    
+    const query = `
+      SELECT * FROM categories 
+      ORDER BY 
+        CASE 
+          WHEN icon IN ('🏢', '🏠') THEN 1  
+          WHEN icon = '💼' THEN 2           
+          WHEN icon IN ('🏖️', '🤒') THEN 3  
+          ELSE 4                            
+        END, 
+        name ASC;                           
+    `;
+    res.json((await pool.query(query)).rows); 
+  } 
+  catch (err: any) { 
+    res.status(500).json({ error: "Error categories" }); 
+  }
 });
 
 app.post('/api/categories', async (req, res) => {
