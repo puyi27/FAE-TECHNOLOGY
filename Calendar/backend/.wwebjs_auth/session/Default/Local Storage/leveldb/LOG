@@ -1,3 +1,6 @@
-2026/03/12-09:31:10.659 d80 Reusing MANIFEST C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
-2026/03/12-09:31:10.668 d80 Recovering log #7
-2026/03/12-09:31:10.673 d80 Reusing old log C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/000007.log 
+2026/03/12-10:45:00.570 51a8 Reusing MANIFEST C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
+2026/03/12-10:45:00.582 51a8 Recovering log #7
+2026/03/12-10:45:00.588 51a8 Reusing old log C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/000007.log 
+2026/03/12-10:55:10.014 68a4 Level-0 table #11: started
+2026/03/12-10:55:10.024 68a4 Level-0 table #11: 15557 bytes OK
+2026/03/12-10:55:10.027 68a4 Delete type=0 #7

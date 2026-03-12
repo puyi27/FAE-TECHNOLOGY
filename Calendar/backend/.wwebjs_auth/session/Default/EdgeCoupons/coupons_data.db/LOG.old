@@ -1,15 +1,6 @@
-2026/03/12-09:24:24.851 394c Reusing MANIFEST C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/03/12-09:24:24.853 394c Recovering log #55
-2026/03/12-09:24:24.853 394c Reusing old log C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\EdgeCoupons/coupons_data.db/000055.log 
-2026/03/12-09:24:25.013 596c Level-0 table #59: started
-2026/03/12-09:24:25.018 596c Level-0 table #59: 681704 bytes OK
-2026/03/12-09:24:25.020 596c Delete type=0 #55
-2026/03/12-09:24:25.021 596c Compacting 4@0 + 1@1 files
-2026/03/12-09:24:25.044 596c Generated table #60@0: 3 keys, 681704 bytes
-2026/03/12-09:24:25.044 596c Compacted 4@0 + 1@1 files => 681704 bytes
-2026/03/12-09:24:25.045 596c compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/03/12-09:24:25.046 596c Delete type=2 #47
-2026/03/12-09:24:25.046 596c Delete type=2 #50
-2026/03/12-09:24:25.046 596c Delete type=2 #53
-2026/03/12-09:24:25.046 596c Delete type=2 #56
-2026/03/12-09:24:25.046 596c Delete type=2 #59
+2026/03/12-09:31:45.922 6630 Reusing MANIFEST C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/03/12-09:31:45.923 6630 Recovering log #58
+2026/03/12-09:31:45.924 6630 Reusing old log C:\Users\angel\Desktop\FAE TECHNOLOGY\Calendar\backend\.wwebjs_auth\session\Default\EdgeCoupons/coupons_data.db/000058.log 
+2026/03/12-09:31:46.096 768c Level-0 table #63: started
+2026/03/12-09:31:46.102 768c Level-0 table #63: 681704 bytes OK
+2026/03/12-09:31:46.104 768c Delete type=0 #58
