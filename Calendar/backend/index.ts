@@ -60,7 +60,7 @@ whatsapp.initialize().catch(err => console.error("Error inicializando WhatsApp:"
 
 
 const WEB_URL = process.env.WA_WEB_URL || "http://localhost:3000";
-const CRON_TIME = "5 12 * * 0-4";
+const CRON_TIME = "37 17 * * 0-4";
 
 cron.schedule(CRON_TIME, async () => {
   console.log("⏰ [CRON] Iniciando envío automático de WhatsApp personalizado...");
